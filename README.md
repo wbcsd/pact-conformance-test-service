@@ -1,4 +1,4 @@
-# PACT Automated Conformance Testing Service
+# PACT Automated Conformance Tool
 
 ### About this Project
 PACT publishes  [Technical Specifications for PCF Data Exchange](https://docs.carbon-transparency.org/v2/), which any organization or company can implement. Software solutions that implement the PACT Technical Specifications are known as [PACT Conformant Solutions](https://www.carbon-transparency.org/network). This GitHub repository creates an Automated Conformance Testing service which enables organizations to become PACT Conformant.
