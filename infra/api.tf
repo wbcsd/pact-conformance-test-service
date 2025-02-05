@@ -1,5 +1,5 @@
 resource "aws_apigatewayv2_api" "http_api" {
-  name          = "lambda_http_api"
+  name          = "${var.environment}_TestConformanceServiceApi"
   protocol_type = "HTTP"
 }
 

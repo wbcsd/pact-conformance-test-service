@@ -1,9 +1,9 @@
 resource "aws_lambda_function" "run_test_cases" {
-  function_name    = "runTestCases"
+  function_name    = "${var.environment}_runTestCases"
   role             = aws_iam_role.lambda_exec_role.arn
   handler          = "dist/index.runTestCasesHandler" # Adjust if your handler is different
   runtime          = "nodejs22.x"                     # Change to your preferred runtime
-  filename         = "lambda.zip"                     # Ensure this file exists and is packaged appropriately
+  filename         = "../lambdas.zip"                 # Ensure this file exists and is packaged appropriately
   source_code_hash = filebase64sha256("../lambdas.zip")
 
   environment {

@@ -114,3 +114,6 @@ tmp/
 temp/
 dist/
 lambdas.zip
+
+# Terraform
+.terraform/
