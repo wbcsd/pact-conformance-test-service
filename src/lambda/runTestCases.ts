@@ -105,7 +105,7 @@ export const handler = async (
     return {
       statusCode: 500,
       body: JSON.stringify({
-        message: "Failed to create record",
+        message: "Failed to finish test run.",
         error: error instanceof Error ? error.message : error,
       }),
     };

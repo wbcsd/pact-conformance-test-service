@@ -1,9 +1,9 @@
 resource "aws_lambda_function" "run_test_cases" {
   function_name    = "${var.environment}_runTestCases"
   role             = aws_iam_role.lambda_exec_role.arn
-  handler          = "dist/index.runTestCasesHandler" # Adjust if your handler is different
-  runtime          = "nodejs22.x"                     # Change to your preferred runtime
-  filename         = "../lambdas.zip"                 # Ensure this file exists and is packaged appropriately
+  handler          = "dist/index.runTestCasesHandler"
+  runtime          = "nodejs22.x"
+  filename         = "../lambdas.zip"
   source_code_hash = filebase64sha256("../lambdas.zip")
 
   environment {
@@ -18,8 +18,7 @@ resource "aws_lambda_permission" "apigw_invoke" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.run_test_cases.function_name
   principal     = "apigateway.amazonaws.com"
-  # This references the API Gateway's execution ARN which is defined in api.tf.
-  source_arn = "${aws_apigatewayv2_api.http_api.execution_arn}/*/*"
+  source_arn    = "${aws_apigatewayv2_api.http_api.execution_arn}/*/*"
 }
 
 resource "aws_lambda_permission" "run_test_cases_invoke" {
