@@ -7,6 +7,7 @@ const randomString = (length: number) => {
   }
   return string;
 };
+
 export const getIncorrectAuthHeaders = (host: string) => {
   let incorrectUserName = randomString(16);
   let incorrectPassword = randomString(16);
@@ -21,4 +22,19 @@ export const getIncorrectAuthHeaders = (host: string) => {
       ),
   };
   return incorrectAuthHeaders;
+};
+
+export const getCorrectAuthHeaders = (
+  host: string,
+  userName: string,
+  password: string
+) => {
+  let authHeaders = {
+    host: host,
+    accept: "application/json",
+    "content-type": "application/x-www-form-urlencoded",
+    authorization:
+      "Basic " + Buffer.from(userName + ":" + password).toString("base64"),
+  };
+  return authHeaders;
 };

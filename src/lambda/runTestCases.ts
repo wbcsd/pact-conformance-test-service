@@ -2,7 +2,10 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDB } from "aws-sdk";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
-import { getIncorrectAuthHeaders } from "../utils/authUtils";
+import {
+  getCorrectAuthHeaders,
+  getIncorrectAuthHeaders,
+} from "../utils/authUtils";
 import { getDefaultTestRun } from "../utils/getDefaultTestRun";
 import { TestCaseNames } from "../types/types";
 
@@ -90,7 +93,66 @@ export const handler = async (
       // TODO try using dynamoDb.put instead of docClient.send
       await docClient.send(new PutCommand(updateTestRunParams));
     } else {
+      // TODO: seems like these integration tests don't need to be reported (check cli version)
+      // delete testRun.testCases[TestCaseNames.AUTHENTICATE_WITH_INCORRECT_CREDENTIALS];
       console.log(`Test [Authenticate with incorrect credentials] passed.`);
+    }
+
+    // OAuth 2.0 Clinet Credential Grant
+
+    interface TestRunConfig {
+      userName: string;
+      password: string;
+      userAgent?: string;
+    }
+
+    const testRunConfig: TestRunConfig = JSON.parse(event.body || "{}");
+
+    const { userName, password, userAgent } = testRunConfig;
+
+    let authHeaders = getCorrectAuthHeaders(host, userName, password);
+
+    const response = await fetch(authContextPath + authPath, {
+      method: "POST",
+      headers: authHeaders,
+      body: JSON.stringify({
+        grant_type: "client_credentials",
+      }),
+    });
+
+    if (response.status != 200) {
+      console.log(
+        `Authentication failed. STATUS: ${response.status} URL: ${
+          authContextPath + authPath
+        }`
+      );
+
+      // TODO  revisit this early return, also implement error in the FE to notify user
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          message:
+            "Function One executed successfully, but with errors. Check logs.",
+          testId: testRun.testId,
+        }),
+      };
+    }
+    const jsonAuthResponse = (await response.json()) as {
+      access_token: string;
+    };
+    const accessToken = jsonAuthResponse.access_token;
+    if (accessToken == null) {
+      console.log(`Access token is empty. URL: ${authContextPath + authPath}`);
+
+      // TODO  revisit this early return, also implement error in the FE to notify user
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          message:
+            "Function One executed successfully, but with errors. Check logs.",
+          testId: testRun.testId,
+        }),
+      };
     }
 
     return {
