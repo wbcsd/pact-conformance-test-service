@@ -16,8 +16,11 @@ export interface TestCase {
   method: "GET" | "POST" | "PUT" | "DELETE";
   endpoint: string;
   expectedStatusCode: number;
-  schema: object;
+  schema?: object;
   requestData?: any;
+  condition?: (response: any) => boolean;
+  conditionErrorMessage?: string;
+  headers?: Record<string, string>;
 }
 export interface TestResult {
   name: string;

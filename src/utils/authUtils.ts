@@ -9,13 +9,13 @@ const randomString = (length: number) => {
 };
 
 export const getIncorrectAuthHeaders = (host: string) => {
-  let incorrectUserName = randomString(16);
-  let incorrectPassword = randomString(16);
-  let incorrectAuthHeaders = {
+  const incorrectUserName = randomString(16);
+  const incorrectPassword = randomString(16);
+  const incorrectAuthHeaders = {
     host: host,
     accept: "application/json",
-    "content-type": "application/x-www-form-urlencoded",
-    authorization:
+    "Content-Type": "application/x-www-form-urlencoded",
+    Authorization:
       "Basic " +
       Buffer.from(incorrectUserName + ":" + incorrectPassword).toString(
         "base64"
@@ -26,15 +26,15 @@ export const getIncorrectAuthHeaders = (host: string) => {
 
 export const getCorrectAuthHeaders = (
   host: string,
-  userName: string,
-  password: string
+  clientId: string,
+  clientSecret: string
 ) => {
   let authHeaders = {
     host: host,
-    accept: "application/json",
+    Accept: "application/json",
     "content-type": "application/x-www-form-urlencoded",
-    authorization:
-      "Basic " + Buffer.from(userName + ":" + password).toString("base64"),
+    Authorization:
+      "Basic " + Buffer.from(clientId + ":" + clientSecret).toString("base64"),
   };
   return authHeaders;
 };
