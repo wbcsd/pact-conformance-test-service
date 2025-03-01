@@ -50,6 +50,13 @@ async function getAccessToken(
   return data.token;
 }
 
+// Get token_endpoint from .well-known endpoint
+const getCustomAuthUrl = async (baseUrl: string) => {
+  const response = await fetch(`${baseUrl}/.well-known/openid-configuration`);
+  const data = await response.json();
+  return data.token_endpoint;
+};
+
 /**
  * Runs an individual test case against the API.
  * Validates both the HTTP status and the JSON response against a provided schema.
@@ -59,7 +66,15 @@ async function runTestCase(
   testCase: TestCase,
   accessToken: string
 ): Promise<TestResult> {
-  const url = `${baseUrl}${testCase.endpoint}`;
+  if (!testCase.endpoint && !testCase.customUrl) {
+    return {
+      name: testCase.name,
+      success: false,
+      error: "Either endpoint or customUrl must be provided",
+    };
+  }
+
+  const url = testCase.customUrl || `${baseUrl}${testCase.endpoint}`;
   const options: RequestInit = {
     method: testCase.method,
     headers: {
@@ -149,13 +164,18 @@ export const handler = async (
 
   try {
     const clientId = "YOUR_CLIENT_ID"; // TODO get from event body
-    const clientSecret = "YOUR_CLIENT_SECRET"; // get from event body
+    const clientSecret = "YOUR_CLIENT_SECRET"; // TODO get from event body
 
     const accessToken = await getAccessToken(baseUrl, clientId, clientSecret);
-    console.log("Obtained access token successfully");
 
-    // Get all footprints from baseUrl + /2/footprints using a fetch request
     const footprints = await fetchFootprints(baseUrl, accessToken);
+
+    const paginationLinks = await getLinksHeaderFromFootprints(
+      baseUrl,
+      accessToken
+    );
+
+    const customAuthUrl = await getCustomAuthUrl(baseUrl);
 
     // Define your test cases.
     // TODO when the test cases are optional, returning 400 not implemented is also an option. Confirm with the team
@@ -163,21 +183,21 @@ export const handler = async (
     // TODO Add api response to error message
     const testCases: TestCase[] = [
       {
-        name: "Test Case 1: Authentication with invalid credentials",
-        method: "POST",
-        endpoint: "/auth/token",
-        expectedStatusCode: 400,
-        headers: getIncorrectAuthHeaders(baseUrl),
-      },
-      {
-        name: "Test Case 2: Authentication with valid credentials",
+        name: "Test Case 1: Authentication against default endpoint",
         method: "POST",
         endpoint: "/auth/token",
         expectedStatusCode: 200,
         headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
       },
       {
-        name: "Test Case 3: Retrieval of all footprints",
+        name: "Test Case 2: Authentication with invalid credentials against default endpoint",
+        method: "POST",
+        endpoint: "/auth/token",
+        expectedStatusCode: 400,
+        headers: getIncorrectAuthHeaders(baseUrl),
+      },
+      {
+        name: "Test Case 3: Get all footprints",
         method: "GET",
         endpoint: "/2/footprints",
         expectedStatusCode: 200,
@@ -188,20 +208,23 @@ export const handler = async (
         conditionErrorMessage: "Number of footprints does not match",
       },
       {
-        name: "Test Case 4: Date filtering for footprints",
+        name: "Test Case 4: Get Limited List of Footprints",
         method: "GET",
-        endpoint: `/2/footprints?$filter=${encodeURIComponent(
-          `created ge ${footprints.data[0].created}`
-        )}`,
-        expectedStatusCode: 200,
+        endpoint: `/2/footprints?limit=1`,
+        expectedStatusCode: 200, // TODO add support for more than one status code. See 5.4.2. Expected Response in https://wbcsd.github.io/pact-conformance-testing/checklist.html#tc004
         schema: simpleResponseSchema,
         condition: ({ data }) => {
-          return data.every(
-            (footprint: { created: Date }) =>
-              footprint.created >= footprints.data[0].created
-          );
+          return data.length === 1;
         },
-        conditionErrorMessage: `One or more footprints do not match the condition created date >= ${footprints.data[0].created}`,
+        conditionErrorMessage: `Returned more footprints than the limit of 1`,
+      },
+      {
+        // TODO this test will need further implementation to support multiple calls to the endpoint with different urls
+        name: "Test Case 5: Pagination link implementation of Action ListFootprints",
+        method: "GET",
+        endpoint: Object.values(paginationLinks)[0]?.replace(baseUrl, ""), // TODO add skip support to tests in case no pagination links are present
+        expectedStatusCode: 200,
+        schema: simpleResponseSchema,
       },
       {
         name: "Test Case 5: Product filtering for footprints",
@@ -218,69 +241,9 @@ export const handler = async (
         },
         conditionErrorMessage: `One or more footprints do not match the condition productIds any of ${footprints.data[0].productIds[0]}`,
       },
+      // TODO Test case 6 is about testing with an expired token, we can't test that
       {
-        name: "Test Case 6: Footprint acquisition limitations",
-        method: "GET",
-        endpoint: `/2/footprints?limit=1`,
-        expectedStatusCode: 200,
-        schema: simpleResponseSchema,
-        condition: ({ data }) => {
-          return data.length === 1;
-        },
-        conditionErrorMessage: `Returned more footprints than the limit of 1`,
-      },
-      {
-        name: "Test Case 7: Retrieve the specific footprint",
-        method: "GET",
-        endpoint: `/2/footprints/${footprints.data[0].id}`,
-        expectedStatusCode: 200,
-        schema: simpleSingleFootprintResponseSchema,
-        condition: ({ data }) => {
-          return data.id === footprints.data[0].id;
-        },
-        conditionErrorMessage: `Returned footprint does not match the requested footprint with id ${footprints.data[0].id}`,
-      },
-      {
-        name: "Test Case 8: Footprint update notification",
-        method: "POST",
-        endpoint: `/2/events`,
-        expectedStatusCode: 200,
-        requestData: {
-          specversion: "1.0",
-          id: "string", // TODO generate uuid
-          source: "string", // TODO add path to the webhook endpoint that processes the event
-          time: new Date().toISOString(),
-          type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
-          data: {
-            pfIds: ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
-          },
-        },
-      },
-      {
-        name: "Test Case 9: Request to send footprints",
-        method: "POST",
-        endpoint: `/2/events`,
-        expectedStatusCode: 200,
-        condition: ({ data }) => {
-          return data.id === footprints.data[0].id;
-        },
-        requestData: {
-          specversion: "1.0",
-          id: "string", // TODO generate uuid
-          source: "string", // TODO add path to the webhook endpoint that processes the event
-          time: new Date().toISOString(),
-          type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
-          data: {
-            pf: {
-              companyIds: "footprints[0].companyIds", // TODO add to demo endpoint. Add validation to avoid erroring out here
-              productIds: "footprints[0].productIds", // TODO add to demo endpoint. Add validation to avoid erroring out here
-            },
-            comment: "Please send PCF data for this year.",
-          },
-        },
-      },
-      {
-        name: "Test Case 10: Illegal access token",
+        name: "Test Case 7:Attempt ListFootPrints with Invalid Token",
         method: "GET",
         endpoint: `/2/footprints`,
         expectedStatusCode: 400,
@@ -293,7 +256,31 @@ export const handler = async (
         },
       },
       {
-        name: "Test Case 11: Incorrect specific footprint request",
+        name: "Test Case 8: Retrieve the specific footprint",
+        method: "GET",
+        endpoint: `/2/footprints/${footprints.data[0].id}`,
+        expectedStatusCode: 200,
+        schema: simpleSingleFootprintResponseSchema,
+        condition: ({ data }) => {
+          return data.id === footprints.data[0].id;
+        },
+        conditionErrorMessage: `Returned footprint does not match the requested footprint with id ${footprints.data[0].id}`,
+      },
+      {
+        name: "Test Case 10: Attempt GetFootprint with Invalid Token",
+        method: "GET",
+        endpoint: `/2/footprints/${footprints.data[0].id}`,
+        expectedStatusCode: 400,
+        condition: ({ code }) => {
+          return code === "BadRequest";
+        },
+        conditionErrorMessage: `Expected error code BadRequest in response.`,
+        headers: {
+          Authorization: `Bearer very-invalid-access-token`, // TODO add a random string to the token
+        },
+      },
+      {
+        name: "Test Case 11: Attempt GetFootprint with Non-Existent PfId",
         method: "GET",
         endpoint: `/2/footprints/random-string-as-id`, // TODO add a random uuid string to the id
         expectedStatusCode: 404,
@@ -301,6 +288,97 @@ export const handler = async (
           return code === "NoSuchFootprint";
         },
         conditionErrorMessage: `Expected error code NoSuchFootprint in response.`,
+      },
+      {
+        name: "Test Case 12: Asynchronous PCF Request",
+        method: "POST",
+        endpoint: `/2/events`,
+        expectedStatusCode: 200,
+        requestData: {
+          specversion: "1.0",
+          id: "string", // TODO generate uuid
+          source: "string", // TODO add path to the webhook endpoint that processes the event
+          time: new Date().toISOString(),
+          type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
+          data: {
+            pf: {
+              productIds: ["urn:gtin:4712345060507"],
+            },
+            comment: "Please send PCF data for this year.",
+          },
+        },
+      },
+      // TODO: Test Case 13 is about receiving the PCF data from the webhook endpoint as a data recipient, this request will be triggered by the previous test
+      {
+        name: "Test Case 14: Receive Notification of PCF Update",
+        method: "POST",
+        endpoint: `/2/events`,
+        expectedStatusCode: 200,
+        requestData: {
+          type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
+          specversion: "1.0",
+          id: "EventId", // TODO generate uuid
+          source: "//EventHostname/EventSubpath",
+          time: new Date().toISOString(),
+          data: {
+            pfIds: ["urn:gtin:4712345060507"],
+          },
+        },
+      },
+      // TODO: Test Case 15 is about receiving the PCF update as a recipient (see notes)
+      {
+        name: "Test Case 16: OpenId Connect-based Authentication Flow",
+        method: "POST",
+        customUrl: customAuthUrl,
+        expectedStatusCode: 200,
+        headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
+      },
+      {
+        name: "Test Case 17: Authentication with invalid credentials against default endpoint",
+        method: "POST",
+        customUrl: customAuthUrl,
+        expectedStatusCode: 400,
+        headers: getIncorrectAuthHeaders(baseUrl),
+      },
+      // TODO: Test cases 18 and 19 are about testing the http(s) protocol, can't see the value of it in the context of the API
+      {
+        name: "Test Case 20: Get Filtered List of Footprints",
+        method: "GET",
+        endpoint: `/2/footprints?$filter=${encodeURIComponent(
+          `created ge ${footprints.data[0].created}`
+        )}`,
+        expectedStatusCode: 200,
+        schema: simpleResponseSchema,
+        condition: ({ data }) => {
+          return data.every(
+            (footprint: { created: Date }) =>
+              footprint.created >= footprints.data[0].created
+          );
+        },
+        conditionErrorMessage: `One or more footprints do not match the condition created date >= ${footprints.data[0].created}`,
+      },
+      // TODO: Test cas 21 is getFootprint without https, can't see the value of it in the context of the API
+      {
+        name: "Test Case 23: Receive Notification of PCF Update",
+        method: "POST",
+        endpoint: `/2/events`,
+        expectedStatusCode: 400,
+        requestData: {
+          type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
+          specversion: "1.0",
+          id: "EventId", // TODO generate uuid
+          source: "//EventHostname/EventSubpath",
+          time: new Date().toISOString(),
+          data: {
+            pfIds: ["urn:gtin:4712345060507"],
+          },
+        },
+        headers: {
+          Authorization: `Bearer very-invalid-access-token`, // TODO add a random string to the token
+        },
+        condition: ({ code }) => {
+          return code === "BadRequest";
+        },
       },
     ];
 
@@ -357,3 +435,29 @@ const fetchFootprints = async (baseUrl: string, accessToken: string) =>
       Authorization: `Bearer ${accessToken}`,
     },
   }).then((response) => response.json());
+
+const getLinksHeaderFromFootprints = async (
+  baseUrl: string,
+  accessToken: string
+) => {
+  const response = await fetch(`${baseUrl}/2/footprints?limit=1`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  const linksHeader = response.headers.get("Links");
+
+  return parseLinkHeader(linksHeader);
+};
+
+function parseLinkHeader(header: string | null): Record<string, string> {
+  if (!header) return {};
+
+  return header.split(", ").reduce<Record<string, string>>((acc, link) => {
+    const match = link.match(/<(.*)>;\s*rel="(.*)"/);
+    if (match) {
+      acc[match[2]] = match[1]; // Store links by their "rel" value
+    }
+    return acc;
+  }, {});
+}

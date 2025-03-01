@@ -14,16 +14,18 @@ export enum TestCaseNames {
 export interface TestCase {
   name: string;
   method: "GET" | "POST" | "PUT" | "DELETE";
-  endpoint: string;
+  endpoint?: string;
   expectedStatusCode: number;
   schema?: object;
   requestData?: any;
   condition?: (response: any) => boolean;
   conditionErrorMessage?: string;
   headers?: Record<string, string>;
+  customUrl?: string;
 }
 export interface TestResult {
   name: string;
   success: boolean;
   error?: string;
+  apiResponse?: string;
 }
