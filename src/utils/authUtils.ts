@@ -1,3 +1,5 @@
+import { TokenResponse } from "../lambda/runTestCases";
+
 const randomString = (length: number) => {
   let variation =
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -37,4 +39,40 @@ export const getCorrectAuthHeaders = (
       "Basic " + Buffer.from(clientId + ":" + clientSecret).toString("base64"),
   };
   return authHeaders;
+};
+
+/**
+ * Retrieves an access token from the authentication endpoint.
+ */
+export const getAccessToken = async (
+  baseUrl: string,
+  clientId: string,
+  clientSecret: string
+): Promise<string> => {
+  const url = `${baseUrl}/auth/token`;
+
+  const encodedCredentials = Buffer.from(
+    `${clientId}:${clientSecret}`
+  ).toString("base64");
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Basic ${encodedCredentials}`,
+    },
+    body: JSON.stringify({}),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to obtain access token. Status: ${response.status}`
+    );
+  }
+
+  const data: TokenResponse = await response.json();
+  if (!data.token) {
+    throw new Error("Access token not present in response");
+  }
+  return data.token;
 };

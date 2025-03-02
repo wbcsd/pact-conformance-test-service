@@ -8,50 +8,21 @@ import {
   simpleSingleFootprintResponseSchema,
 } from "../schemas/responseSchema";
 import {
+  getAccessToken,
   getCorrectAuthHeaders,
   getIncorrectAuthHeaders,
 } from "../utils/authUtils";
+import {
+  fetchFootprints,
+  getLinksHeaderFromFootprints,
+} from "../utils/fetchFootprints";
 
-interface TokenResponse {
+export interface TokenResponse {
   token: string;
 }
 
-/**
- * Retrieves an access token from the authentication endpoint.
- */
-async function getAccessToken(
-  baseUrl: string,
-  clientId: string,
-  clientSecret: string
-): Promise<string> {
-  const url = `${baseUrl}/auth/token`;
-
-  const encodedCredentials = btoa(`${clientId}:${clientSecret}`);
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Basic ${encodedCredentials}`,
-    },
-    body: JSON.stringify({}), // Include additional data if required by the endpoint
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to obtain access token. Status: ${response.status}`
-    );
-  }
-
-  const data: TokenResponse = await response.json();
-  if (!data.token) {
-    throw new Error("Access token not present in response");
-  }
-  return data.token;
-}
-
 // Get token_endpoint from .well-known endpoint
-const getCustomAuthUrl = async (baseUrl: string) => {
+const getCustomAuthUrl = async (baseUrl: string): Promise<string> => {
   const response = await fetch(`${baseUrl}/.well-known/openid-configuration`);
   const data = await response.json();
   return data.token_endpoint;
@@ -428,36 +399,3 @@ export const handler = async (
     };
   }
 };
-
-const fetchFootprints = async (baseUrl: string, accessToken: string) =>
-  await fetch(`${baseUrl}/2/footprints`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  }).then((response) => response.json());
-
-const getLinksHeaderFromFootprints = async (
-  baseUrl: string,
-  accessToken: string
-) => {
-  const response = await fetch(`${baseUrl}/2/footprints?limit=1`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-  const linksHeader = response.headers.get("Links");
-
-  return parseLinkHeader(linksHeader);
-};
-
-function parseLinkHeader(header: string | null): Record<string, string> {
-  if (!header) return {};
-
-  return header.split(", ").reduce<Record<string, string>>((acc, link) => {
-    const match = link.match(/<(.*)>;\s*rel="(.*)"/);
-    if (match) {
-      acc[match[2]] = match[1]; // Store links by their "rel" value
-    }
-    return acc;
-  }, {});
-}
