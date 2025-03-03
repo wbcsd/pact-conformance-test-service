@@ -121,6 +121,8 @@ async function runTestCase(
   }
 }
 
+const WEBHOOK_URL = process.env.WEBHOOK_URL;
+
 /**
  * Lambda handler that runs the test scenarios.
  */
@@ -268,7 +270,7 @@ export const handler = async (
         requestData: {
           specversion: "1.0",
           id: "string", // TODO generate uuid
-          source: "string", // TODO add path to the webhook endpoint that processes the event
+          source: `${WEBHOOK_URL}?testId=foo&testCaseName=bar`,
           time: new Date().toISOString(),
           type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
           data: {

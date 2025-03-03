@@ -34,7 +34,7 @@ export const handler = async (
           TableName: tableName,
           Item: {
             testId: event.queryStringParameters?.testId,
-            SK: "TESTCASE#25",
+            SK: `TESTCASE#${event.queryStringParameters?.testCaseName}`,
             timestamp: new Date().toISOString(),
             body: body,
           },
