@@ -1,4 +1,6 @@
-import { TokenResponse } from "../lambda/runTestCases";
+export interface TokenResponse {
+  token: string;
+}
 
 const randomString = (length: number) => {
   let variation =
@@ -75,4 +77,11 @@ export const getAccessToken = async (
     throw new Error("Access token not present in response");
   }
   return data.token;
+};
+
+// Get token_endpoint from .well-known endpoint
+export const getCustomAuthUrl = async (baseUrl: string): Promise<string> => {
+  const response = await fetch(`${baseUrl}/.well-known/openid-configuration`);
+  const data = await response.json();
+  return data.token_endpoint;
 };

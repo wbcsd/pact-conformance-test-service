@@ -1,5 +1,3 @@
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
 import { TestCase, TestResult } from "../types/types";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import {
@@ -10,116 +8,14 @@ import {
 import {
   getAccessToken,
   getCorrectAuthHeaders,
+  getCustomAuthUrl,
   getIncorrectAuthHeaders,
 } from "../utils/authUtils";
 import {
   fetchFootprints,
   getLinksHeaderFromFootprints,
 } from "../utils/fetchFootprints";
-
-export interface TokenResponse {
-  token: string;
-}
-
-// Get token_endpoint from .well-known endpoint
-const getCustomAuthUrl = async (baseUrl: string): Promise<string> => {
-  const response = await fetch(`${baseUrl}/.well-known/openid-configuration`);
-  const data = await response.json();
-  return data.token_endpoint;
-};
-
-/**
- * Runs an individual test case against the API.
- * Validates both the HTTP status and the JSON response against a provided schema.
- */
-async function runTestCase(
-  baseUrl: string,
-  testCase: TestCase,
-  accessToken: string
-): Promise<TestResult> {
-  if (!testCase.endpoint && !testCase.customUrl) {
-    return {
-      name: testCase.name,
-      success: false,
-      error: "Either endpoint or customUrl must be provided",
-    };
-  }
-
-  const url = testCase.customUrl || `${baseUrl}${testCase.endpoint}`;
-  const options: RequestInit = {
-    method: testCase.method,
-    headers: {
-      "Content-Type": "application/json", // TODO confirm this header in the spec
-      Authorization: `Bearer ${accessToken}`,
-    },
-  };
-
-  if (testCase.requestData) {
-    options.body = JSON.stringify(testCase.requestData);
-  }
-
-  if (testCase.headers) {
-    options.headers = {
-      ...options.headers,
-      ...testCase.headers,
-    };
-  }
-
-  try {
-    const response = await fetch(url, options);
-
-    if (response.status !== testCase.expectedStatusCode) {
-      return {
-        name: testCase.name,
-        success: false,
-        error: `Expected status ${testCase.expectedStatusCode}, but got ${response.status}`,
-      };
-    }
-
-    // Parse the response as JSON.
-    const responseData = await response.json();
-
-    console.log(`Test response data from ${url}`, responseData);
-
-    // Validate the response JSON using AJV if a schema is provided.
-    if (testCase.schema) {
-      const ajv = new Ajv();
-      addFormats(ajv);
-      const validate = ajv.compile(testCase.schema);
-      const valid = validate(responseData);
-      if (!valid) {
-        console.log("Schema validation failed:", validate.errors);
-        return {
-          name: testCase.name,
-          success: false,
-          error: `Schema validation failed: ${JSON.stringify(validate.errors)}`,
-        };
-      }
-    }
-
-    console.log("Schema validation passed");
-
-    // Run condition if provided
-    if (typeof testCase.condition === "function") {
-      const conditionPassed = testCase.condition(responseData);
-      if (!conditionPassed) {
-        return {
-          name: testCase.name,
-          success: false,
-          error: testCase.conditionErrorMessage,
-        };
-      }
-    }
-
-    return { name: testCase.name, success: true };
-  } catch (error: any) {
-    return {
-      name: testCase.name,
-      success: false,
-      error: error.message,
-    };
-  }
-}
+import { runTestCase } from "../utils/runTestCase";
 
 const WEBHOOK_URL = process.env.WEBHOOK_URL;
 
@@ -131,14 +27,17 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
   console.log("Lambda test runner started");
 
-  const { baseUrl }: { baseUrl: string } = JSON.parse(event.body || "{}");
+  const {
+    baseUrl,
+    clientId,
+    clientSecret,
+  }: { baseUrl: string; clientId: string; clientSecret: string } = JSON.parse(
+    event.body || "{}"
+  );
 
-  // TODO some prep to get the auth url from the .well-known endpoint
+  // TODO validate body, all three fields must be present
 
   try {
-    const clientId = "YOUR_CLIENT_ID"; // TODO get from event body
-    const clientSecret = "YOUR_CLIENT_SECRET"; // TODO get from event body
-
     const accessToken = await getAccessToken(baseUrl, clientId, clientSecret);
 
     const footprints = await fetchFootprints(baseUrl, accessToken);
