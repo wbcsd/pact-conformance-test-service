@@ -10,7 +10,7 @@ PACT began running a conformance testing process in May 2023, shortly after the 
 - Several organizations have proposed automated conformance testing since PACT's foundation, including [SINE Foundation](https://sine.foundation/) and [NRI](https://www.nri.com/en/index.html).
 - NRI [Takuro Okada](mailto:t2-okada@nri.co.jp) built an open-source command-line automated conformance testing tool and released this to the PACT community in September 2024, [see here](https://github.com/wbcsd/pact-api-testbed)
 - PACT began work on this project in January 2025
-- PACT plans to launch an MVP version of the service during the February 24, 2025 Conformance Testing Process (for V2 testing)
+- PACT is building an MVP version of the service, planned to be ready for testing March 2025
 - PACT plans to launch a Production version of the service in May 2025, following the launch of PACT Tech Specs V3, helping organizations conform to V3
 
 ### How to get involved
