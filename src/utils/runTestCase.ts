@@ -22,21 +22,26 @@ export const runTestCase = async (
   if (!testCase.endpoint && !testCase.customUrl) {
     return {
       name: testCase.name,
+      status: "FAILURE",
       success: false,
       errorMessage: "Either endpoint or customUrl must be provided",
       mandatory: isMandatoryVersion(testCase, version),
+      testKey: testCase.testKey,
     };
   }
 
   const url = testCase.customUrl || `${baseUrl}${testCase.endpoint}`;
 
   // TODO: the case is about refusing the request, tighten the implementation later
+  // ... just replace https with http in the request and expect an error code
   if (testCase.ensureHttps && !url.startsWith("https://")) {
     return {
       name: testCase.name,
+      status: "FAILURE",
       success: false,
       errorMessage: `HTTPS is required for this endpoint, but the URL is ${url}`,
       mandatory: isMandatoryVersion(testCase, version),
+      testKey: testCase.testKey,
     };
   }
 
@@ -65,9 +70,11 @@ export const runTestCase = async (
     if (response.status !== testCase.expectedStatusCode) {
       return {
         name: testCase.name,
+        status: "FAILURE",
         success: false,
         errorMessage: `Expected status ${testCase.expectedStatusCode}, but got ${response.status}`,
         mandatory: isMandatoryVersion(testCase, version),
+        testKey: testCase.testKey,
       };
     }
 
@@ -87,11 +94,13 @@ export const runTestCase = async (
         return {
           name: testCase.name,
           success: false,
+          status: "FAILURE",
           errorMessage: `Schema validation failed: ${JSON.stringify(
             validate.errors
           )}`,
           apiResponse: JSON.stringify(responseData),
           mandatory: isMandatoryVersion(testCase, version),
+          testKey: testCase.testKey,
         };
       }
     }
@@ -104,25 +113,31 @@ export const runTestCase = async (
       if (!conditionPassed) {
         return {
           name: testCase.name,
+          status: "FAILURE",
           success: false,
           errorMessage: testCase.conditionErrorMessage,
           apiResponse: JSON.stringify(responseData),
           mandatory: isMandatoryVersion(testCase, version),
+          testKey: testCase.testKey,
         };
       }
     }
 
     return {
       name: testCase.name,
+      status: "SUCCESS",
       success: true,
       mandatory: isMandatoryVersion(testCase, version),
+      testKey: testCase.testKey,
     };
   } catch (error: any) {
     return {
       name: testCase.name,
+      status: "FAILURE",
       success: false,
       errorMessage: error.message,
       mandatory: isMandatoryVersion(testCase, version),
+      testKey: testCase.testKey,
     };
   }
 };

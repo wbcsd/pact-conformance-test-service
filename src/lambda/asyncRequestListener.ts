@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { TestResult } from "../types/types";
 
 // Initialize DynamoDB clients
 const dynamoClient = new DynamoDBClient({});
@@ -25,22 +26,34 @@ export const handler = async (
 
     // Parse and log the request body
     if (event.body) {
-      const body = JSON.parse(event.body);
-      console.log("Request body:", JSON.stringify(body, null, 2));
+      // const body = JSON.parse(event.body);
+      // console.log("Request body:", JSON.stringify(body, null, 2));
 
-      // Save the request body to DynamoDB
-      await docClient.send(
-        new PutCommand({
-          TableName: tableName,
-          Item: {
-            testId: event.queryStringParameters?.testId,
-            SK: `TESTCASE#${event.queryStringParameters?.testCaseName}`,
-            timestamp: new Date().toISOString(),
-            body: body,
-          },
-        })
-      );
-      console.log("Successfully saved request to DynamoDB");
+      /* We only care about TESTCASE#12 for this part as Test Case 13 is basically a follow-up
+         that processes the call back from a host system in response to the event fired in test case 12 */
+      if (event.queryStringParameters?.testCaseName === "TESTCASE#12") {
+        const testResult: TestResult = {
+          name: "Test Case 13: Respond to Asynchronous PCF Request",
+          status: "SUCCESS",
+          success: true,
+          mandatory: false,
+          testKey: "TESTCASE#13",
+        };
+
+        // Save the request body to DynamoDB
+        await docClient.send(
+          new PutCommand({
+            TableName: tableName,
+            Item: {
+              testId: event.queryStringParameters?.testRunId,
+              SK: testResult.testKey,
+              timestamp: new Date().toISOString(),
+              result: testResult,
+            },
+          })
+        );
+        console.log("Successfully saved request to DynamoDB");
+      }
     } else {
       console.log("No request body received");
     }

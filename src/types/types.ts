@@ -24,13 +24,16 @@ export interface TestCase {
   customUrl?: string;
   mandatoryVersion?: ApiVersion[];
   ensureHttps: boolean;
+  testKey: string;
 }
 export interface TestResult {
   name: string;
   success: boolean;
+  status: "PENDING" | "SUCCESS" | "FAILURE";
   errorMessage?: string;
   apiResponse?: string;
   mandatory: boolean;
+  testKey: string;
 }
 
 export type ApiVersion = "V2.0" | "V2.1" | "V2.2" | "V2.3";
