@@ -22,10 +22,15 @@ export interface TestCase {
   conditionErrorMessage?: string;
   headers?: Record<string, string>;
   customUrl?: string;
+  mandatoryVersion?: ApiVersion[];
+  ensureHttps: boolean;
 }
 export interface TestResult {
   name: string;
   success: boolean;
-  error?: string;
+  errorMessage?: string;
   apiResponse?: string;
+  mandatory: boolean;
 }
+
+export type ApiVersion = "V2.0" | "V2.1" | "V2.2" | "V2.3";

@@ -1,6 +1,13 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { TestCase, TestResult } from "../types/types";
+import { ApiVersion, TestCase, TestResult } from "../types/types";
+
+const isMandatoryVersion = (testCase: TestCase, version: ApiVersion) => {
+  if (testCase.mandatoryVersion) {
+    return testCase.mandatoryVersion.includes(version);
+  }
+  return false;
+};
 
 /**
  * Runs an individual test case against the API.
@@ -9,17 +16,30 @@ import { TestCase, TestResult } from "../types/types";
 export const runTestCase = async (
   baseUrl: string,
   testCase: TestCase,
-  accessToken: string
+  accessToken: string,
+  version: ApiVersion
 ): Promise<TestResult> => {
   if (!testCase.endpoint && !testCase.customUrl) {
     return {
       name: testCase.name,
       success: false,
-      error: "Either endpoint or customUrl must be provided",
+      errorMessage: "Either endpoint or customUrl must be provided",
+      mandatory: isMandatoryVersion(testCase, version),
     };
   }
 
   const url = testCase.customUrl || `${baseUrl}${testCase.endpoint}`;
+
+  // TODO: the case is about refusing the request, tighten the implementation later
+  if (testCase.ensureHttps && !url.startsWith("https://")) {
+    return {
+      name: testCase.name,
+      success: false,
+      errorMessage: `HTTPS is required for this endpoint, but the URL is ${url}`,
+      mandatory: isMandatoryVersion(testCase, version),
+    };
+  }
+
   const options: RequestInit = {
     method: testCase.method,
     headers: {
@@ -46,7 +66,8 @@ export const runTestCase = async (
       return {
         name: testCase.name,
         success: false,
-        error: `Expected status ${testCase.expectedStatusCode}, but got ${response.status}`,
+        errorMessage: `Expected status ${testCase.expectedStatusCode}, but got ${response.status}`,
+        mandatory: isMandatoryVersion(testCase, version),
       };
     }
 
@@ -66,7 +87,11 @@ export const runTestCase = async (
         return {
           name: testCase.name,
           success: false,
-          error: `Schema validation failed: ${JSON.stringify(validate.errors)}`,
+          errorMessage: `Schema validation failed: ${JSON.stringify(
+            validate.errors
+          )}`,
+          apiResponse: JSON.stringify(responseData),
+          mandatory: isMandatoryVersion(testCase, version),
         };
       }
     }
@@ -80,17 +105,24 @@ export const runTestCase = async (
         return {
           name: testCase.name,
           success: false,
-          error: testCase.conditionErrorMessage,
+          errorMessage: testCase.conditionErrorMessage,
+          apiResponse: JSON.stringify(responseData),
+          mandatory: isMandatoryVersion(testCase, version),
         };
       }
     }
 
-    return { name: testCase.name, success: true };
+    return {
+      name: testCase.name,
+      success: true,
+      mandatory: isMandatoryVersion(testCase, version),
+    };
   } catch (error: any) {
     return {
       name: testCase.name,
       success: false,
-      error: error.message,
+      errorMessage: error.message,
+      mandatory: isMandatoryVersion(testCase, version),
     };
   }
 };

@@ -1,4 +1,4 @@
-import { TestCase, TestResult } from "../types/types";
+import { ApiVersion, TestCase, TestResult } from "../types/types";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import {
   responseSchema,
@@ -31,9 +31,13 @@ export const handler = async (
     baseUrl,
     clientId,
     clientSecret,
-  }: { baseUrl: string; clientId: string; clientSecret: string } = JSON.parse(
-    event.body || "{}"
-  );
+    version,
+  }: {
+    baseUrl: string;
+    clientId: string;
+    clientSecret: string;
+    version: ApiVersion;
+  } = JSON.parse(event.body || "{}");
 
   // TODO validate body, all three fields must be present
 
@@ -52,7 +56,8 @@ export const handler = async (
     // Define your test cases.
     // TODO when the test cases are optional, returning 400 not implemented is also an option. Confirm with the team
     // TODO confirm if in the case of limit and filtering for < 2.3 the endpoint should return 400 or 200 without filtering and limit
-    // TODO Add api response to error message
+    // TODO Add support for https
+    // TODO add support for multiple status code
     const testCases: TestCase[] = [
       {
         name: "Test Case 1: Authentication against default endpoint",
@@ -60,6 +65,8 @@ export const handler = async (
         endpoint: "/auth/token",
         expectedStatusCode: 200,
         headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
+        mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
+        ensureHttps: false,
       },
       {
         name: "Test Case 2: Authentication with invalid credentials against default endpoint",
@@ -67,9 +74,24 @@ export const handler = async (
         endpoint: "/auth/token",
         expectedStatusCode: 400,
         headers: getIncorrectAuthHeaders(baseUrl),
+        mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
+        ensureHttps: false,
       },
       {
-        name: "Test Case 3: Get all footprints",
+        name: "Test Case 3: Get PCF using GetFootprint",
+        method: "GET",
+        endpoint: `/2/footprints/${footprints.data[0].id}`,
+        expectedStatusCode: 200,
+        schema: simpleSingleFootprintResponseSchema,
+        condition: ({ data }) => {
+          return data.id === footprints.data[0].id;
+        },
+        conditionErrorMessage: `Returned footprint does not match the requested footprint with id ${footprints.data[0].id}`,
+        mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
+        ensureHttps: false,
+      },
+      {
+        name: "Test Case 4: Get all PCFs using ListFootprints",
         method: "GET",
         endpoint: "/2/footprints",
         expectedStatusCode: 200,
@@ -78,8 +100,20 @@ export const handler = async (
           return data.length === footprints.data.length;
         },
         conditionErrorMessage: "Number of footprints does not match",
+        mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
+        ensureHttps: false,
       },
       {
+        // TODO this test will need further implementation to support multiple calls to the endpoint with different urls
+        name: "Test Case 5: Pagination link implementation of Action ListFootprints",
+        method: "GET",
+        endpoint: Object.values(paginationLinks)[0]?.replace(baseUrl, ""), // TODO add skip support to tests in case no pagination links are present
+        expectedStatusCode: 200,
+        schema: simpleResponseSchema,
+        mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
+        ensureHttps: false,
+      },
+      /* {
         name: "Test Case 4: Get Limited List of Footprints",
         method: "GET",
         endpoint: `/2/footprints?limit=1`,
@@ -89,16 +123,9 @@ export const handler = async (
           return data.length === 1;
         },
         conditionErrorMessage: `Returned more footprints than the limit of 1`,
-      },
-      {
-        // TODO this test will need further implementation to support multiple calls to the endpoint with different urls
-        name: "Test Case 5: Pagination link implementation of Action ListFootprints",
-        method: "GET",
-        endpoint: Object.values(paginationLinks)[0]?.replace(baseUrl, ""), // TODO add skip support to tests in case no pagination links are present
-        expectedStatusCode: 200,
-        schema: simpleResponseSchema,
-      },
-      {
+      }, */
+
+      /* {
         name: "Test Case 5: Product filtering for footprints",
         method: "GET",
         endpoint: `/2/footprints?$filter=${encodeURIComponent(
@@ -112,10 +139,10 @@ export const handler = async (
           );
         },
         conditionErrorMessage: `One or more footprints do not match the condition productIds any of ${footprints.data[0].productIds[0]}`,
-      },
+      }, */
       // TODO Test case 6 is about testing with an expired token, we can't test that
       {
-        name: "Test Case 7:Attempt ListFootPrints with Invalid Token",
+        name: "Test Case 6: Attempt ListFootPrints with Invalid Token",
         method: "GET",
         endpoint: `/2/footprints`,
         expectedStatusCode: 400,
@@ -126,20 +153,11 @@ export const handler = async (
         headers: {
           Authorization: `Bearer very-invalid-access-token`, // TODO add a random string to the token
         },
+        mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
+        ensureHttps: false,
       },
       {
-        name: "Test Case 8: Retrieve the specific footprint",
-        method: "GET",
-        endpoint: `/2/footprints/${footprints.data[0].id}`,
-        expectedStatusCode: 200,
-        schema: simpleSingleFootprintResponseSchema,
-        condition: ({ data }) => {
-          return data.id === footprints.data[0].id;
-        },
-        conditionErrorMessage: `Returned footprint does not match the requested footprint with id ${footprints.data[0].id}`,
-      },
-      {
-        name: "Test Case 10: Attempt GetFootprint with Invalid Token",
+        name: "Test Case 7: Attempt GetFootprint with Invalid Token",
         method: "GET",
         endpoint: `/2/footprints/${footprints.data[0].id}`,
         expectedStatusCode: 400,
@@ -150,9 +168,11 @@ export const handler = async (
         headers: {
           Authorization: `Bearer very-invalid-access-token`, // TODO add a random string to the token
         },
+        mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
+        ensureHttps: false,
       },
       {
-        name: "Test Case 11: Attempt GetFootprint with Non-Existent PfId",
+        name: "Test Case 8: Attempt GetFootprint with Non-Existent PfId",
         method: "GET",
         endpoint: `/2/footprints/random-string-as-id`, // TODO add a random uuid string to the id
         expectedStatusCode: 404,
@@ -160,16 +180,53 @@ export const handler = async (
           return code === "NoSuchFootprint";
         },
         conditionErrorMessage: `Expected error code NoSuchFootprint in response.`,
+        mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
+        ensureHttps: false,
       },
       {
-        name: "Test Case 12: Asynchronous PCF Request",
+        name: "Test Case 9: Attempt Authentication through HTTP (non-HTTPS)",
+        method: "POST",
+        endpoint: "/auth/token",
+        expectedStatusCode: 200,
+        headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
+        mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
+        ensureHttps: true,
+      },
+      {
+        name: "Test Case 10: Attempt ListFootprints through HTTP (non-HTTPS)",
+        method: "GET",
+        endpoint: "/2/footprints",
+        expectedStatusCode: 200,
+        schema: simpleResponseSchema,
+        condition: ({ data }) => {
+          return data.length === footprints.data.length;
+        },
+        conditionErrorMessage: "Number of footprints does not match",
+        mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
+        ensureHttps: true,
+      },
+      {
+        name: "Test Case 11: Attempt GetFootprint through HTTP (non-HTTPS)",
+        method: "GET",
+        endpoint: `/2/footprints/${footprints.data[0].id}`,
+        expectedStatusCode: 200,
+        schema: simpleSingleFootprintResponseSchema,
+        condition: ({ data }) => {
+          return data.id === footprints.data[0].id;
+        },
+        conditionErrorMessage: `Returned footprint does not match the requested footprint with id ${footprints.data[0].id}`,
+        mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
+        ensureHttps: true,
+      },
+      {
+        name: "Test Case 12: Receive Asynchronous PCF Request",
         method: "POST",
         endpoint: `/2/events`,
         expectedStatusCode: 200,
         requestData: {
           specversion: "1.0",
           id: "string", // TODO generate uuid
-          source: `${WEBHOOK_URL}?testId=foo&testCaseName=bar`,
+          source: `${WEBHOOK_URL}?testId=foo&testCaseName=bar`, // TODO send correct test ID and test case name
           time: new Date().toISOString(),
           type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
           data: {
@@ -179,10 +236,57 @@ export const handler = async (
             comment: "Please send PCF data for this year.",
           },
         },
+        mandatoryVersion: ["V2.2", "V2.3"],
+        ensureHttps: false,
       },
-      // TODO: Test Case 13 is about receiving the PCF data from the webhook endpoint as a data recipient, this request will be triggered by the previous test
+      // TODO: Test Case 13 is about receiving the PCF data from the webhook endpoint as a data recipient, this request will be triggered by the previous test. It will be "tested" in the listener lambda
       {
-        name: "Test Case 14: Receive Notification of PCF Update",
+        name: "Test Case 14: Attempt Action Events with Invalid Token",
+        method: "POST",
+        endpoint: `/2/events`,
+        expectedStatusCode: 400,
+        requestData: {
+          type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
+          specversion: "1.0",
+          id: "EventId", // TODO generate uuid
+          source: `${WEBHOOK_URL}?testId=foo&testCaseName=bar`, // TODO send correct test ID and test case name,
+          time: new Date().toISOString(),
+          data: {
+            pfIds: ["urn:gtin:4712345060507"],
+          },
+        },
+        headers: {
+          Authorization: `Bearer very-invalid-access-token`, // TODO add a random string to the token
+        },
+        condition: ({ code }) => {
+          return code === "BadRequest";
+        },
+        mandatoryVersion: ["V2.2", "V2.3"],
+        ensureHttps: false,
+      },
+      {
+        name: "Test Case 15: Attempt Action Events through HTTP (non-HTTPS)",
+        method: "POST",
+        endpoint: `/2/events`,
+        expectedStatusCode: 200,
+        requestData: {
+          specversion: "1.0",
+          id: "string", // TODO generate uuid
+          source: `${WEBHOOK_URL}?testId=foo&testCaseName=bar`, // TODO send correct test ID and test case name
+          time: new Date().toISOString(),
+          type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
+          data: {
+            pf: {
+              productIds: ["urn:gtin:4712345060507"],
+            },
+            comment: "Please send PCF data for this year.",
+          },
+        },
+        mandatoryVersion: ["V2.2", "V2.3"],
+        ensureHttps: true,
+      },
+      {
+        name: "Test Case 16: Receive Notification of PCF Update",
         method: "POST",
         endpoint: `/2/events`,
         expectedStatusCode: 200,
@@ -190,31 +294,33 @@ export const handler = async (
           type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
           specversion: "1.0",
           id: "EventId", // TODO generate uuid
-          source: "//EventHostname/EventSubpath",
+          source: `${WEBHOOK_URL}?testId=foo&testCaseName=bar`, // TODO send correct test ID and test case name
           time: new Date().toISOString(),
           data: {
             pfIds: ["urn:gtin:4712345060507"],
           },
         },
+        mandatoryVersion: ["V2.2", "V2.3"],
+        ensureHttps: false,
       },
-      // TODO: Test Case 15 is about receiving the PCF update as a recipient (see notes)
       {
-        name: "Test Case 16: OpenId Connect-based Authentication Flow",
+        name: "Test Case 17: OpenId Connect-based Authentication Flow",
         method: "POST",
         customUrl: customAuthUrl,
         expectedStatusCode: 200,
         headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
+        ensureHttps: false,
       },
       {
-        name: "Test Case 17: Authentication with invalid credentials against default endpoint",
+        name: "Test Case 18: OpenId connect-based authentication flow with incorrect credentials",
         method: "POST",
         customUrl: customAuthUrl,
         expectedStatusCode: 400,
         headers: getIncorrectAuthHeaders(baseUrl),
+        ensureHttps: false,
       },
-      // TODO: Test cases 18 and 19 are about testing the http(s) protocol, can't see the value of it in the context of the API
       {
-        name: "Test Case 20: Get Filtered List of Footprints",
+        name: "Test Case 19: Get Filtered List of Footprints",
         method: "GET",
         endpoint: `/2/footprints?$filter=${encodeURIComponent(
           `created ge ${footprints.data[0].created}`
@@ -227,30 +333,8 @@ export const handler = async (
               footprint.created >= footprints.data[0].created
           );
         },
-        conditionErrorMessage: `One or more footprints do not match the condition created date >= ${footprints.data[0].created}`,
-      },
-      // TODO: Test cas 21 is getFootprint without https, can't see the value of it in the context of the API
-      {
-        name: "Test Case 23: Receive Notification of PCF Update",
-        method: "POST",
-        endpoint: `/2/events`,
-        expectedStatusCode: 400,
-        requestData: {
-          type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
-          specversion: "1.0",
-          id: "EventId", // TODO generate uuid
-          source: "//EventHostname/EventSubpath",
-          time: new Date().toISOString(),
-          data: {
-            pfIds: ["urn:gtin:4712345060507"],
-          },
-        },
-        headers: {
-          Authorization: `Bearer very-invalid-access-token`, // TODO add a random string to the token
-        },
-        condition: ({ code }) => {
-          return code === "BadRequest";
-        },
+        conditionErrorMessage: `One or more footprints do not match the condition: 'created date >= ${footprints.data[0].created}'`,
+        ensureHttps: false,
       },
     ];
 
@@ -259,11 +343,13 @@ export const handler = async (
     // Run each test case sequentially.
     for (const testCase of testCases) {
       console.log(`Running test case: ${testCase.name}`);
-      const result = await runTestCase(baseUrl, testCase, accessToken);
+      const result = await runTestCase(baseUrl, testCase, accessToken, version);
       if (result.success) {
         console.log(`Test case "${testCase.name}" passed.`);
       } else {
-        console.error(`Test case "${testCase.name}" failed: ${result.error}`);
+        console.error(
+          `Test case "${testCase.name}" failed: ${result.errorMessage}`
+        );
       }
       results.push(result);
     }
@@ -272,11 +358,27 @@ export const handler = async (
     const failedTests = results.filter((result) => !result.success);
     if (failedTests.length > 0) {
       console.error("Some tests failed:", failedTests);
+      // Filter out optional tests for passing percentage calculation
+      const mandatoryTests = results.filter((result) => result.mandatory);
+      const failedMandatoryTests = mandatoryTests.filter(
+        (result) => !result.success
+      );
+
+      const passingPercentage =
+        mandatoryTests.length > 0
+          ? Math.round(
+              ((mandatoryTests.length - failedMandatoryTests.length) /
+                mandatoryTests.length) *
+                100
+            )
+          : 0;
+
       return {
         statusCode: 500,
         body: JSON.stringify({
           message: "One or more tests failed",
           results,
+          passingPercentage,
         }),
       };
     }
@@ -287,6 +389,7 @@ export const handler = async (
       body: JSON.stringify({
         message: "All tests passed successfully",
         results,
+        passingPercentage: 100,
       }),
     };
   } catch (error: any) {
