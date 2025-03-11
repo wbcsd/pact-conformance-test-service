@@ -33,6 +33,22 @@ resource "aws_apigatewayv2_route" "async_request_listener_route" {
   target    = "integrations/${aws_apigatewayv2_integration.async_request_listener_integration.id}"
 }
 
+# GET /getTestResults route
+resource "aws_apigatewayv2_route" "get_test_results" {
+  api_id    = aws_apigatewayv2_api.http_api.id
+  route_key = "GET /getTestResults"
+  target    = "integrations/${aws_apigatewayv2_integration.get_test_results_integration.id}"
+}
+
+# Integration for getTestResults Lambda
+resource "aws_apigatewayv2_integration" "get_test_results_integration" {
+  api_id                 = aws_apigatewayv2_api.http_api.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.get_test_results.invoke_arn
+  integration_method     = "POST"
+  payload_format_version = "2.0"
+}
+
 resource "aws_apigatewayv2_stage" "default_stage" {
   api_id      = aws_apigatewayv2_api.http_api.id
   name        = "$default"
