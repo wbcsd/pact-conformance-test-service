@@ -15,7 +15,7 @@ export interface TestCase {
   name: string;
   method: "GET" | "POST" | "PUT" | "DELETE";
   endpoint?: string;
-  expectedStatusCode: number;
+  expectedStatusCodes: number[];
   schema?: object;
   requestData?: any;
   condition?: (response: any) => boolean;

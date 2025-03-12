@@ -67,12 +67,14 @@ export const runTestCase = async (
   try {
     const response = await fetch(url, options);
 
-    if (response.status !== testCase.expectedStatusCode) {
+    if (!testCase.expectedStatusCodes.includes(response.status)) {
       return {
         name: testCase.name,
         status: "FAILURE",
         success: false,
-        errorMessage: `Expected status ${testCase.expectedStatusCode}, but got ${response.status}`,
+        errorMessage: `Expected status [${testCase.expectedStatusCodes.join(
+          ","
+        )}], but got ${response.status}`,
         mandatory: isMandatoryVersion(testCase, version),
         testKey: testCase.testKey,
       };

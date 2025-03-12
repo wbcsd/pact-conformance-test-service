@@ -1,11 +1,26 @@
-import test from "node:test";
 import { TestResult } from "../types/types";
+import * as AWS from "aws-sdk";
+
+const docClient = new AWS.DynamoDB.DocumentClient();
+
+interface TestRunDetails {
+  testRunId: string;
+  companyName: string;
+  companyIdentifier: string;
+  adminEmail: string;
+  adminFullName: string;
+  techSpecVersion: string;
+}
 
 // TODO save company info, get it from arguments
-export const saveTestRun = async (testRunId: string): Promise<void> => {
-  const AWS = require("aws-sdk");
-  const docClient = new AWS.DynamoDB.DocumentClient();
-
+export const saveTestRun = async ({
+  testRunId,
+  companyName,
+  companyIdentifier,
+  adminEmail,
+  adminFullName,
+  techSpecVersion,
+}: TestRunDetails): Promise<void> => {
   const tableName = process.env.DYNAMODB_TABLE_NAME;
 
   if (!tableName) {
@@ -20,6 +35,11 @@ export const saveTestRun = async (testRunId: string): Promise<void> => {
       testId: testRunId,
       SK: "TESTRUN#DETAILS",
       timestamp: timestamp,
+      companyName,
+      companyIdentifier,
+      adminEmail,
+      adminFullName,
+      techSpecVersion,
     },
   };
 
@@ -90,4 +110,43 @@ export const saveTestCaseResults = async (
   }
 
   console.log(`All ${testResults.length} test cases saved successfully`);
+};
+
+export const getTestResults = async (testRunId: string) => {
+  const tableName = process.env.DYNAMODB_TABLE_NAME;
+
+  if (!tableName) {
+    throw new Error("DYNAMODB_TABLE_NAME environment variable is not defined");
+  }
+
+  const params = {
+    TableName: tableName,
+    KeyConditionExpression: "testId = :testId",
+    ExpressionAttributeValues: {
+      ":testId": testRunId,
+    },
+  };
+
+  const result = await docClient.query(params).promise();
+
+  if (!result.Items) {
+    return {
+      testRunId,
+      results: [],
+    };
+  }
+
+  const testResults: TestResult[] = result.Items.filter(
+    (item) => item.SK !== "TESTRUN#DETAILS"
+  ).map((item) => item.result);
+
+  const testDetails = result.Items.find(
+    (item) => item.SK === "TESTRUN#DETAILS"
+  );
+
+  return {
+    testRunId,
+    timestamp: testDetails?.timestamp,
+    results: testResults,
+  };
 };

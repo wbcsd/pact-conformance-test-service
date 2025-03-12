@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { ApiVersion, TestCase, TestResult } from "../types/types";
 import {
   responseSchema,
+  v2ResponseSchema,
   simpleResponseSchema,
   simpleSingleFootprintResponseSchema,
 } from "../schemas/responseSchema";
@@ -34,19 +35,34 @@ export const handler = async (
     clientId,
     clientSecret,
     version,
+    companyName,
+    companyIdentifier,
+    adminEmail,
+    adminFullName,
   }: {
     baseUrl: string;
     clientId: string;
     clientSecret: string;
     version: ApiVersion;
+    companyName: string;
+    companyIdentifier: string;
+    adminEmail: string;
+    adminFullName: string;
   } = JSON.parse(event.body || "{}");
 
-  // TODO validate body, all three fields must be present
+  // TODO validate body, all fields must be present
 
   try {
     const testRunId = randomUUID();
 
-    await saveTestRun(testRunId);
+    await saveTestRun({
+      testRunId,
+      companyName,
+      companyIdentifier,
+      adminEmail,
+      adminFullName,
+      techSpecVersion: version,
+    });
 
     const accessToken = await getAccessToken(baseUrl, clientId, clientSecret);
 
@@ -63,13 +79,12 @@ export const handler = async (
     // TODO when the test cases are optional, returning 400 not implemented is also an option. Confirm with the team
     // TODO confirm if in the case of limit and filtering for < 2.3 the endpoint should return 400 or 200 without filtering and limit
     // TODO Add support for https
-    // TODO add support for multiple status code
     const testCases: TestCase[] = [
       {
         name: "Test Case 1: Authentication against default endpoint",
         method: "POST",
         endpoint: "/auth/token",
-        expectedStatusCode: 200,
+        expectedStatusCodes: [200],
         headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
         ensureHttps: false,
@@ -79,7 +94,7 @@ export const handler = async (
         name: "Test Case 2: Authentication with invalid credentials against default endpoint",
         method: "POST",
         endpoint: "/auth/token",
-        expectedStatusCode: 400,
+        expectedStatusCodes: [400, 401],
         headers: getIncorrectAuthHeaders(baseUrl),
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
         ensureHttps: false,
@@ -89,7 +104,7 @@ export const handler = async (
         name: "Test Case 3: Get PCF using GetFootprint",
         method: "GET",
         endpoint: `/2/footprints/${footprints.data[0].id}`,
-        expectedStatusCode: 200,
+        expectedStatusCodes: [200],
         schema: simpleSingleFootprintResponseSchema,
         condition: ({ data }) => {
           return data.id === footprints.data[0].id;
@@ -103,8 +118,8 @@ export const handler = async (
         name: "Test Case 4: Get all PCFs using ListFootprints",
         method: "GET",
         endpoint: "/2/footprints",
-        expectedStatusCode: 200,
-        schema: simpleResponseSchema,
+        expectedStatusCodes: [200, 202],
+        schema: v2ResponseSchema,
         condition: ({ data }) => {
           return data.length === footprints.data.length;
         },
@@ -114,11 +129,10 @@ export const handler = async (
         testKey: "TESTCASE#4",
       },
       {
-        // TODO this test will need further implementation to support multiple calls to the endpoint with different urls
         name: "Test Case 5: Pagination link implementation of Action ListFootprints",
         method: "GET",
         endpoint: Object.values(paginationLinks)[0]?.replace(baseUrl, ""), // TODO add skip support to tests in case no pagination links are present
-        expectedStatusCode: 200,
+        expectedStatusCodes: [200],
         schema: simpleResponseSchema,
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
         ensureHttps: false,
@@ -128,7 +142,7 @@ export const handler = async (
         name: "Test Case 6: Attempt ListFootPrints with Invalid Token",
         method: "GET",
         endpoint: `/2/footprints`,
-        expectedStatusCode: 400,
+        expectedStatusCodes: [400],
         condition: ({ code }) => {
           return code === "BadRequest";
         },
@@ -144,7 +158,7 @@ export const handler = async (
         name: "Test Case 7: Attempt GetFootprint with Invalid Token",
         method: "GET",
         endpoint: `/2/footprints/${footprints.data[0].id}`,
-        expectedStatusCode: 400,
+        expectedStatusCodes: [400],
         condition: ({ code }) => {
           return code === "BadRequest";
         },
@@ -160,7 +174,7 @@ export const handler = async (
         name: "Test Case 8: Attempt GetFootprint with Non-Existent PfId",
         method: "GET",
         endpoint: `/2/footprints/random-string-as-id`, // TODO add a random uuid string to the id
-        expectedStatusCode: 404,
+        expectedStatusCodes: [404],
         condition: ({ code }) => {
           return code === "NoSuchFootprint";
         },
@@ -173,7 +187,7 @@ export const handler = async (
         name: "Test Case 9: Attempt Authentication through HTTP (non-HTTPS)",
         method: "POST",
         endpoint: "/auth/token",
-        expectedStatusCode: 200,
+        expectedStatusCodes: [200],
         headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
         ensureHttps: true,
@@ -183,7 +197,7 @@ export const handler = async (
         name: "Test Case 10: Attempt ListFootprints through HTTP (non-HTTPS)",
         method: "GET",
         endpoint: "/2/footprints",
-        expectedStatusCode: 200,
+        expectedStatusCodes: [200],
         schema: simpleResponseSchema,
         condition: ({ data }) => {
           return data.length === footprints.data.length;
@@ -197,7 +211,7 @@ export const handler = async (
         name: "Test Case 11: Attempt GetFootprint through HTTP (non-HTTPS)",
         method: "GET",
         endpoint: `/2/footprints/${footprints.data[0].id}`,
-        expectedStatusCode: 200,
+        expectedStatusCodes: [200],
         schema: simpleSingleFootprintResponseSchema,
         condition: ({ data }) => {
           return data.id === footprints.data[0].id;
@@ -211,7 +225,7 @@ export const handler = async (
         name: "Test Case 12: Receive Asynchronous PCF Request",
         method: "POST",
         endpoint: `/2/events`,
-        expectedStatusCode: 200,
+        expectedStatusCodes: [200],
         requestData: {
           specversion: "1.0",
           id: "string", // TODO generate uuid
@@ -237,7 +251,7 @@ export const handler = async (
         name: "Test Case 14: Attempt Action Events with Invalid Token",
         method: "POST",
         endpoint: `/2/events`,
-        expectedStatusCode: 400,
+        expectedStatusCodes: [400],
         requestData: {
           type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
           specversion: "1.0",
@@ -264,7 +278,7 @@ export const handler = async (
         name: "Test Case 15: Attempt Action Events through HTTP (non-HTTPS)",
         method: "POST",
         endpoint: `/2/events`,
-        expectedStatusCode: 200,
+        expectedStatusCodes: [200],
         requestData: {
           specversion: "1.0",
           id: "string", // TODO generate uuid
@@ -288,7 +302,7 @@ export const handler = async (
         name: "Test Case 16: Receive Notification of PCF Update",
         method: "POST",
         endpoint: `/2/events`,
-        expectedStatusCode: 200,
+        expectedStatusCodes: [200],
         requestData: {
           type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
           specversion: "1.0",
@@ -307,7 +321,7 @@ export const handler = async (
         name: "Test Case 17: OpenId Connect-based Authentication Flow",
         method: "POST",
         customUrl: customAuthUrl,
-        expectedStatusCode: 200,
+        expectedStatusCodes: [200],
         headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
         ensureHttps: false,
         testKey: "TESTCASE#17",
@@ -316,7 +330,7 @@ export const handler = async (
         name: "Test Case 18: OpenId connect-based authentication flow with incorrect credentials",
         method: "POST",
         customUrl: customAuthUrl,
-        expectedStatusCode: 400,
+        expectedStatusCodes: [400],
         headers: getIncorrectAuthHeaders(baseUrl),
         ensureHttps: false,
         testKey: "TESTCASE#18",
@@ -327,7 +341,7 @@ export const handler = async (
         endpoint: `/2/footprints?$filter=${encodeURIComponent(
           `created ge ${footprints.data[0].created}`
         )}`,
-        expectedStatusCode: 200,
+        expectedStatusCodes: [200],
         schema: simpleResponseSchema,
         condition: ({ data }) => {
           return data.every(
@@ -397,7 +411,7 @@ export const handler = async (
         statusCode: 500,
         body: JSON.stringify({
           message: "One or more tests failed",
-          resultsWithAsyncPlaceholder,
+          results: resultsWithAsyncPlaceholder,
           passingPercentage,
           testRunId,
         }),
@@ -409,7 +423,7 @@ export const handler = async (
       statusCode: 200,
       body: JSON.stringify({
         message: "All tests passed successfully",
-        resultsWithAsyncPlaceholder,
+        results: resultsWithAsyncPlaceholder,
         passingPercentage: 100,
         testRunId,
       }),

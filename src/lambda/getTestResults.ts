@@ -1,11 +1,10 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import * as AWS from "aws-sdk";
+import { getTestResults } from "../utils/dbUtils";
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    // Get testRunId from query string parameters
     const testRunId = event.queryStringParameters?.testRunId;
 
     if (!testRunId) {
@@ -20,41 +19,14 @@ export const handler = async (
       };
     }
 
-    const tableName = process.env.DYNAMODB_TABLE_NAME;
-    if (!tableName) {
-      throw new Error(
-        "DYNAMODB_TABLE_NAME environment variable is not defined"
-      );
-    }
+    const result = await getTestResults(testRunId);
 
-    // Initialize DynamoDB client
-    const docClient = new AWS.DynamoDB.DocumentClient();
-
-    // Query parameters to get all items with the specified testId
-    const params = {
-      TableName: tableName,
-      KeyConditionExpression: "testId = :testId",
-      ExpressionAttributeValues: {
-        ":testId": testRunId,
-      },
-    };
-
-    // Query DynamoDB
-    const result = await docClient.query(params).promise();
-
-    console.log(result.Items);
-
-    // Return the results
     return {
       statusCode: 200,
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        testRunId,
-        itemCount: result.Items?.length || 0,
-        items: result.Items,
-      }),
+      body: JSON.stringify(result),
     };
   } catch (error) {
     console.error("Error retrieving test results:", error);
