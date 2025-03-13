@@ -49,6 +49,22 @@ resource "aws_apigatewayv2_integration" "get_test_results_integration" {
   payload_format_version = "2.0"
 }
 
+# Integration for authForAsyncListener Lambda
+resource "aws_apigatewayv2_integration" "auth_for_async_listener_integration" {
+  api_id                 = aws_apigatewayv2_api.http_api.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.auth_for_async_listener.invoke_arn
+  integration_method     = "POST"
+  payload_format_version = "2.0"
+}
+
+# Route for authForAsyncListener Lambda (POST /auth/token)
+resource "aws_apigatewayv2_route" "auth_for_async_listener_route" {
+  api_id    = aws_apigatewayv2_api.http_api.id
+  route_key = "POST /auth/token"
+  target    = "integrations/${aws_apigatewayv2_integration.auth_for_async_listener_integration.id}"
+}
+
 resource "aws_apigatewayv2_stage" "default_stage" {
   api_id      = aws_apigatewayv2_api.http_api.id
   name        = "$default"

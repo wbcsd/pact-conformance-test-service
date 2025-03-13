@@ -15,7 +15,6 @@ resource "aws_lambda_function" "run_test_cases" {
   }
 }
 
-## TODO delete this resource
 resource "aws_lambda_permission" "apigw_invoke" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
@@ -24,6 +23,7 @@ resource "aws_lambda_permission" "apigw_invoke" {
   source_arn    = "${aws_apigatewayv2_api.http_api.execution_arn}/*/*"
 }
 
+# TODO delete this resource
 resource "aws_lambda_permission" "run_test_cases_invoke" {
   statement_id  = "AllowAPIGatewayInvokeRunTestCases"
   action        = "lambda:InvokeFunction"
@@ -54,6 +54,26 @@ resource "aws_lambda_permission" "async_request_listener_invoke" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.async_request_listener.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.http_api.execution_arn}/*/*"
+}
+
+# Lambda Function for authForAsyncListener
+resource "aws_lambda_function" "auth_for_async_listener" {
+  function_name    = "${var.environment}_authForAsyncListener"
+  role             = aws_iam_role.lambda_exec_role.arn
+  handler          = "dist/index.authForAsyncListenerHandler"
+  runtime          = "nodejs22.x"
+  filename         = "../lambdas.zip"
+  timeout          = 10
+  source_code_hash = filebase64sha256("../lambdas.zip")
+}
+
+# Permission for API Gateway to invoke authForAsyncListener Lambda
+resource "aws_lambda_permission" "auth_for_async_listener_invoke" {
+  statement_id  = "AllowAPIGatewayInvokeAuthForAsyncListener"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.auth_for_async_listener.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.http_api.execution_arn}/*/*"
 }
