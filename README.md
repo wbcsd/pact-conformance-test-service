@@ -14,10 +14,10 @@ PACT began running a conformance testing process in May 2023, shortly after the 
 - PACT plans to launch a Production version of the service in May 2025, following the launch of PACT Tech Specs V3, helping organizations conform to V3
 
 ### What does ACT test?
-See the set of test cases [here](https://github.com/wbcsd/pact-conformance-test-service/blob/main/docs/ACT_Test_Cases.pdf)
+See the set of test cases [here](docs/ACT_Test_Cases.pdf)
 
 ### How to test MVP
-See [Testing Guide](https://github.com/wbcsd/pact-conformance-test-service/blob/main/MVP_testing_guide.md)
+See [Testing Guide](docs/MVP_testing_guide.md)
 
 ### How to get involved
 - We welcome any organization globally to get involved in this project. Write to Beth Hadley (hadley@wbcsd.org) to learn more.
