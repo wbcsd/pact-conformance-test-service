@@ -748,6 +748,24 @@ export const v2ResponseSchema = {
           },
         },
       },
+      oneOf: [
+        {
+          oneOf: [
+            { required: ["geographyRegionOrSubregion"] },
+            { required: ["geographyCountry"] },
+            { required: ["geographyCountrySubdivision"] },
+          ],
+        },
+        {
+          not: {
+            anyOf: [
+              { required: ["geographyRegionOrSubregion"] },
+              { required: ["geographyCountry"] },
+              { required: ["geographyCountrySubdivision"] },
+            ],
+          },
+        },
+      ],
     },
     DataModelExtension: {
       type: "object",
