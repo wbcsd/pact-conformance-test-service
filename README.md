@@ -13,6 +13,13 @@ PACT began running a conformance testing process in May 2023, shortly after the 
 - PACT is building an MVP version of the service, planned to be ready for testing March 2025
 - PACT plans to launch a Production version of the service in May 2025, following the launch of PACT Tech Specs V3, helping organizations conform to V3
 
+### How to test MVP
+- Any organization globally may participate in testing ACT MVP, provided the organization has built or is buiding a PACT Conformant Solution implementing PACT Tech Specs V2.X.X. There is no cost to participate in testing.
+- Testing is estimated to take no more than 1 hour, assuming the organization has a Solution already built and ready for testing
+- Why test? Gain early access to the service, provide feedback to influence the direction of the service post MVP, be promoted as an early tester of the MVP, prepare to quickly pass conformance when the ACT becomes mandatory (for V3)
+- To test ACT MVP, you need a registration code, please email Beth Hadley (hadley@wbcsd.org) for a code.
+- 
+
 ### How to get involved
 - We welcome any organization globally to get involved in this project. Write to Beth Hadley (hadley@wbcsd.org) to learn more.
 
