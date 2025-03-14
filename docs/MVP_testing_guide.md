@@ -1,7 +1,7 @@
 # Guide to testing Automated Conformance Testing MVP
 
 ## Why participate in testing?
-- Organizations which participate in MVP testing of ACT will gain early access to the service, provide feedback to influence the direction of the service, be promoted as an early tester of the MVP, and prepare to quickly pass conformance when the ACT becomes mandatory
+- Organizations that participate in MVP testing of ACT will gain early access to the service, provide feedback to influence its direction, be promoted as early testers of the MVP, and be well-prepared to quickly pass conformance when the ACT becomes mandatory
 - Any organization globally may participate in testing ACT MVP, provided the organization has built or is building a PACT Conformant Solution implementing PACT Tech Specs V2.X.X. There is no cost to participate in testing.
 - Testing is estimated to take no more than 1 hour, assuming the organization has a Solution already built and ready for testing
 
