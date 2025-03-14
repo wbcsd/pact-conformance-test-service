@@ -6,7 +6,7 @@
 - Testing is estimated to take no more than 1 hour, assuming the organization has a Solution already built and ready for testing
 
 ## How to join testing?
-To test ACT MVP, you need a registration code, please email Beth Hadley (hadley@wbcsd.org) for a code.
+To test ACT MVP you need a registration code, please email Beth Hadley (hadley@wbcsd.org) for a code.
 
 ## Timeline for testing?
 - The MVP testing phase is from March 20 - April 2, 2025.
