@@ -22,7 +22,7 @@ Before beginning testing, organizations must complete the following pre-requisit
 - Register to [PACT Network](https://pact-directory-portal.onrender.com/) to begin testing. Note that not all information is strictly required to conduct conformance testing, but as ACT is built in the same environment as Identity Management, the sign-up interfaces are similar. We are refining the sign-up UI for public launch and welcome your feedback.
 - You are taken to a page with your company profile. The pages "My Profile", "Search", and "Manage Connections" are functionality of the PACT Identity Management service, which you are welcome to explore and test but are not relevant to Automated Conformance Testing. See [Identity Management GitHub](https://github.com/wbcsd/pact-directory).
 - Go to "Conformance Testing"
-- Enter in details, and click Run tests; the rest should be self-explanatory
+- Enter in details, and click "Run tests"; the rest should be self-explanatory
 - Make note of your feedback (questions, comments, etc.) and once you have completed testing, please write to Beth Hadley (hadley@wbcsd.org) to share your feedback and schedule a call to de-brief
 - We look forward to your feedback and revising the MVP accordingly!
 
