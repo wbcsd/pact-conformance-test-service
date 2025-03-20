@@ -9,7 +9,7 @@
 To test ACT MVP you need a registration code, please email Beth Hadley (hadley@wbcsd.org) for a code.
 
 ## Timeline for testing?
-The MVP testing phase is from March 20 - April 2, 2025.
+The MVP testing phase is from March 20 - April 2, 2025. If you are unable to complete testing during this timeline, please get in touch with us so we can plan accordingly - we are happy to work with you on the timeline that works for you.
 
 ## Pre-requisites to testing
 Before beginning testing, organizations must complete the following pre-requisites:
