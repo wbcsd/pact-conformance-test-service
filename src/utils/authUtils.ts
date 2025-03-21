@@ -49,9 +49,10 @@ export const getCorrectAuthHeaders = (
 export const getAccessToken = async (
   baseUrl: string,
   clientId: string,
-  clientSecret: string
+  clientSecret: string,
+  customAuthUrl?: string
 ): Promise<string> => {
-  const url = `${baseUrl}/auth/token`;
+  const url = customAuthUrl || `${baseUrl}/auth/token`;
 
   const encodedCredentials = Buffer.from(
     `${clientId}:${clientSecret}`
