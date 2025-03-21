@@ -64,7 +64,14 @@ export const handler = async (
       techSpecVersion: version,
     });
 
-    const accessToken = await getAccessToken(baseUrl, clientId, clientSecret);
+    const customAuthUrl = await getCustomAuthUrl(baseUrl);
+
+    const accessToken = await getAccessToken(
+      baseUrl,
+      clientId,
+      clientSecret,
+      customAuthUrl
+    );
 
     const footprints = await fetchFootprints(baseUrl, accessToken);
 
@@ -72,8 +79,6 @@ export const handler = async (
       baseUrl,
       accessToken
     );
-
-    const customAuthUrl = await getCustomAuthUrl(baseUrl);
 
     // Define your test cases.
     // TODO when the test cases are optional, returning 400 not implemented is also an option. Confirm with the team
