@@ -13,7 +13,7 @@ export const getLinksHeaderFromFootprints = async (
       Authorization: `Bearer ${accessToken}`,
     },
   });
-  const linksHeader = response.headers.get("Links");
+  const linksHeader = response.headers.get("Link");
 
   return parseLinkHeader(linksHeader);
 };

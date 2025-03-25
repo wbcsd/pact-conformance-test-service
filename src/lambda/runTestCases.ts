@@ -48,6 +48,7 @@ export const handler = async (
     companyIdentifier: string;
     adminEmail: string;
     adminFullName: string;
+    authUrl?: string;
   } = JSON.parse(event.body || "{}");
 
   // TODO validate body, all fields must be present
@@ -75,7 +76,6 @@ export const handler = async (
 
     const customAuthUrl = await getCustomAuthUrl(baseUrl);
 
-    // Define your test cases.
     // TODO when the test cases are optional, returning 400 not implemented is also an option. Confirm with the team
     // TODO confirm if in the case of limit and filtering for < 2.3 the endpoint should return 400 or 200 without filtering and limit
     // TODO Add support for https
