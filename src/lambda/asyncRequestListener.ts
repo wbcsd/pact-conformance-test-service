@@ -7,10 +7,11 @@ import { TestResult } from "../types/types";
 const dynamoClient = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(dynamoClient);
 
-/**
- * Lambda function that handles async requests via API Gateway
- * Logs the request body and saves it to DynamoDB, then returns a 200 response
- */
+// Constants
+const EVENT_TYPE_FULFILLED =
+  "org.wbcsd.pathfinder.ProductFootprintRequest.Fulfilled.v1";
+const TEST_CASE_13_NAME = "Test Case 13: Respond to Asynchronous PCF Request";
+
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
@@ -26,21 +27,37 @@ export const handler = async (
 
     // Parse and log the request body
     if (event.body) {
-      // const body = JSON.parse(event.body);
-      // console.log("Request body:", JSON.stringify(body, null, 2));
+      const body = JSON.parse(event.body);
+      console.log("Request body:", JSON.stringify(body, null, 2));
 
       /* We only care about TESTCASE#12 for this part as Test Case 13 is basically a follow-up
          that processes the call back from a host system in response to the event fired in test case 12 */
       if (event.queryStringParameters?.testCaseName === "TESTCASE#12") {
-        const testResult: TestResult = {
-          name: "Test Case 13: Respond to Asynchronous PCF Request",
-          status: "SUCCESS",
-          success: true,
-          mandatory: false,
-          testKey: "TESTCASE#13",
-        };
+        let testResult: TestResult;
 
-        // Save the request body to DynamoDB
+        // Check if the event type matches the expected value
+        if (body.type === EVENT_TYPE_FULFILLED) {
+          testResult = {
+            name: TEST_CASE_13_NAME,
+            status: "SUCCESS",
+            success: true,
+            mandatory: false,
+            testKey: "TESTCASE#13",
+          };
+        } else {
+          testResult = {
+            name: TEST_CASE_13_NAME,
+            status: "FAILURE",
+            success: false,
+            mandatory: false,
+            testKey: "TESTCASE#13",
+            errorMessage: `Expected event type '${EVENT_TYPE_FULFILLED}' but received '${
+              body.type || "undefined"
+            }'`,
+          };
+        }
+
+        // Save the test result to DynamoDB
         await docClient.send(
           new PutCommand({
             TableName: tableName,
@@ -52,7 +69,6 @@ export const handler = async (
             },
           })
         );
-        console.log("Successfully saved request to DynamoDB");
       }
     } else {
       console.log("No request body received");

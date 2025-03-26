@@ -2,7 +2,6 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { randomUUID } from "crypto";
 import { ApiVersion, TestCase, TestResult } from "../types/types";
 import {
-  responseSchema,
   v2ResponseSchema,
   simpleResponseSchema,
   simpleSingleFootprintResponseSchema,
@@ -234,15 +233,15 @@ export const handler = async (
         expectedStatusCodes: [200],
         requestData: {
           specversion: "1.0",
-          id: "string", // TODO generate uuid
+          id: randomUUID(),
           source: `${WEBHOOK_URL}?testRunId=${testRunId}&testCaseName=${encodeURIComponent(
             "TESTCASE#12"
           )}`,
           time: new Date().toISOString(),
-          type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
+          type: "org.wbcsd.pathfinder.ProductFootprintRequest.Created.v1",
           data: {
             pf: {
-              productIds: ["urn:gtin:4712345060507"],
+              productIds: footprints.data[0].productIds,
             },
             comment: "Please send PCF data for this year.",
           },
