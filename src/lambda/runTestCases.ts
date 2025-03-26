@@ -10,7 +10,7 @@ import {
 import {
   getAccessToken,
   getCorrectAuthHeaders,
-  getCustomAuthUrl,
+  getOidAuthUrl,
   getIncorrectAuthHeaders,
 } from "../utils/authUtils";
 import {
@@ -28,8 +28,6 @@ const WEBHOOK_URL = process.env.WEBHOOK_URL;
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
-  console.log("Lambda test runner started");
-
   const {
     baseUrl,
     clientId,
@@ -39,6 +37,7 @@ export const handler = async (
     companyIdentifier,
     adminEmail,
     adminFullName,
+    customAuthBaseUrl,
   }: {
     baseUrl: string;
     clientId: string;
@@ -48,7 +47,7 @@ export const handler = async (
     companyIdentifier: string;
     adminEmail: string;
     adminFullName: string;
-    authUrl?: string;
+    customAuthBaseUrl?: string;
   } = JSON.parse(event.body || "{}");
 
   // TODO validate body, all fields must be present
@@ -65,13 +64,15 @@ export const handler = async (
       techSpecVersion: version,
     });
 
-    const customAuthUrl = await getCustomAuthUrl(baseUrl);
+    const authBaseUrl = customAuthBaseUrl || baseUrl;
+
+    const oidAuthUrl = await getOidAuthUrl(authBaseUrl);
 
     const accessToken = await getAccessToken(
-      baseUrl,
+      authBaseUrl,
       clientId,
       clientSecret,
-      customAuthUrl
+      oidAuthUrl
     );
 
     const footprints = await fetchFootprints(baseUrl, accessToken);
@@ -81,7 +82,6 @@ export const handler = async (
       accessToken
     );
 
-    // Define your test cases.
     // TODO when the test cases are optional, returning 400 not implemented is also an option. Confirm with the team
     // TODO confirm if in the case of limit and filtering for < 2.3 the endpoint should return 400 or 200 without filtering and limit
     // TODO Add support for https
@@ -326,7 +326,7 @@ export const handler = async (
       {
         name: "Test Case 17: OpenId Connect-based Authentication Flow",
         method: "POST",
-        customUrl: customAuthUrl,
+        customUrl: oidAuthUrl,
         expectedStatusCodes: [200],
         headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
         ensureHttps: false,
@@ -335,7 +335,7 @@ export const handler = async (
       {
         name: "Test Case 18: OpenId connect-based authentication flow with incorrect credentials",
         method: "POST",
-        customUrl: customAuthUrl,
+        customUrl: oidAuthUrl,
         expectedStatusCodes: [400],
         headers: getIncorrectAuthHeaders(baseUrl),
         ensureHttps: false,

@@ -81,8 +81,17 @@ export const getAccessToken = async (
 };
 
 // Get token_endpoint from .well-known endpoint
-export const getCustomAuthUrl = async (baseUrl: string): Promise<string> => {
-  const response = await fetch(`${baseUrl}/.well-known/openid-configuration`);
-  const data = await response.json();
-  return data.token_endpoint;
+export const getOidAuthUrl = async (
+  baseUrl: string
+): Promise<string | undefined> => {
+  try {
+    const response = await fetch(`${baseUrl}/.well-known/openid-configuration`);
+    if (!response.ok) {
+      return;
+    }
+    const data = await response.json();
+    return data.token_endpoint;
+  } catch (error) {
+    return;
+  }
 };
