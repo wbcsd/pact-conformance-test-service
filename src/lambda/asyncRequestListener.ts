@@ -2,10 +2,18 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { TestResult } from "../types/types";
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
+import { eventFulfilledSchema } from "../schemas/responseSchema";
 
 // Initialize DynamoDB clients
 const dynamoClient = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(dynamoClient);
+
+// Initialize Ajv validator
+const ajv = new Ajv({ allErrors: true });
+addFormats(ajv);
+const validateEvent = ajv.compile(eventFulfilledSchema);
 
 // Constants
 const EVENT_TYPE_FULFILLED =
@@ -35,8 +43,10 @@ export const handler = async (
       if (event.queryStringParameters?.testCaseName === "TESTCASE#12") {
         let testResult: TestResult;
 
-        // Check if the event type matches the expected value
-        if (body.type === EVENT_TYPE_FULFILLED) {
+        // Validate the event body against our schema
+        const isValid = validateEvent(body);
+
+        if (isValid) {
           testResult = {
             name: TEST_CASE_13_NAME,
             status: "SUCCESS",
@@ -51,9 +61,9 @@ export const handler = async (
             success: false,
             mandatory: false,
             testKey: "TESTCASE#13",
-            errorMessage: `Expected event type '${EVENT_TYPE_FULFILLED}' but received '${
-              body.type || "undefined"
-            }'`,
+            errorMessage: `Event validation failed: ${JSON.stringify(
+              validateEvent.errors
+            )}`,
           };
         }
 
