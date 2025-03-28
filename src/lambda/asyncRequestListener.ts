@@ -73,7 +73,9 @@ export const handler = async (
           };
         }
 
-        const productIds = body.data.pfs[0].productIds;
+        const productIds = body.data.pfs.flatMap(
+          (pf: { productIds: string[] }) => pf.productIds
+        );
         const testPassed = testData.productIds.some((id: string) =>
           productIds.includes(id)
         );
