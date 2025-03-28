@@ -17,7 +17,11 @@ import {
   getLinksHeaderFromFootprints,
 } from "../utils/fetchFootprints";
 import { runTestCase } from "../utils/runTestCase";
-import { saveTestCaseResults, saveTestRun } from "../utils/dbUtils";
+import {
+  saveTestCaseResults,
+  saveTestData,
+  saveTestRun,
+} from "../utils/dbUtils";
 
 const WEBHOOK_URL = process.env.WEBHOOK_URL;
 
@@ -80,6 +84,11 @@ export const handler = async (
       baseUrl,
       accessToken
     );
+
+    saveTestData(testRunId, {
+      productIds: footprints.data[0].productIds,
+      version,
+    });
 
     // TODO when the test cases are optional, returning 400 not implemented is also an option. Confirm with the team
     // TODO confirm if in the case of limit and filtering for < 2.3 the endpoint should return 400 or 200 without filtering and limit
@@ -233,7 +242,7 @@ export const handler = async (
         expectedStatusCodes: [200],
         requestData: {
           specversion: "1.0",
-          id: randomUUID(),
+          id: testRunId,
           source: `${WEBHOOK_URL}?testRunId=${testRunId}&testCaseName=${encodeURIComponent(
             "TESTCASE#12"
           )}`,
@@ -260,7 +269,7 @@ export const handler = async (
         requestData: {
           type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
           specversion: "1.0",
-          id: "EventId", // TODO generate uuid
+          id: randomUUID(),
           source: `${WEBHOOK_URL}?testRunId=${testRunId}&testCaseName=${encodeURIComponent(
             "TESTCASE#14"
           )}`,

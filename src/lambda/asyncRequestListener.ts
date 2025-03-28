@@ -5,6 +5,7 @@ import { TestResult } from "../types/types";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { eventFulfilledSchema } from "../schemas/responseSchema";
+import { getTestData } from "../utils/dbUtils";
 
 // Initialize DynamoDB clients
 const dynamoClient = new DynamoDBClient({});
@@ -19,6 +20,7 @@ const validateEvent = ajv.compile(eventFulfilledSchema);
 const EVENT_TYPE_FULFILLED =
   "org.wbcsd.pathfinder.ProductFootprintRequest.Fulfilled.v1";
 const TEST_CASE_13_NAME = "Test Case 13: Respond to Asynchronous PCF Request";
+const MANDATORY_VERSIONS = ["V2.2", "V2.3"];
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -41,6 +43,10 @@ export const handler = async (
       /* We only care about TESTCASE#12 for this part as Test Case 13 is basically a follow-up
          that processes the call back from a host system in response to the event fired in test case 12 */
       if (event.queryStringParameters?.testCaseName === "TESTCASE#12") {
+        const testData = await getTestData(body.data.requestEventId);
+
+        const isMandatory = MANDATORY_VERSIONS.includes(testData.version);
+
         let testResult: TestResult;
 
         // Validate the event body against our schema
@@ -51,7 +57,7 @@ export const handler = async (
             name: TEST_CASE_13_NAME,
             status: "SUCCESS",
             success: true,
-            mandatory: false,
+            mandatory: isMandatory,
             testKey: "TESTCASE#13",
           };
         } else {
@@ -59,11 +65,25 @@ export const handler = async (
             name: TEST_CASE_13_NAME,
             status: "FAILURE",
             success: false,
-            mandatory: false,
+            mandatory: isMandatory,
             testKey: "TESTCASE#13",
             errorMessage: `Event validation failed: ${JSON.stringify(
               validateEvent.errors
             )}`,
+          };
+        }
+
+        const productIds = body.data.pfs[0].productIds;
+        const testPassed = testData.productIds.some((id: string) =>
+          productIds.includes(id)
+        );
+
+        if (!testPassed) {
+          testResult = {
+            ...testResult,
+            status: "FAILURE",
+            success: false,
+            errorMessage: `Product IDs do not match, the request was made for productIds [${testData.productIds}] but received data for productIds [${productIds}]`,
           };
         }
 

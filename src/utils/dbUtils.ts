@@ -12,7 +12,6 @@ interface TestRunDetails {
   techSpecVersion: string;
 }
 
-// TODO save company info, get it from arguments
 export const saveTestRun = async ({
   testRunId,
   companyName,
@@ -149,4 +148,59 @@ export const getTestResults = async (testRunId: string) => {
     timestamp: testDetails?.timestamp,
     results: testResults,
   };
+};
+
+export const saveTestData = async (
+  testRunId: string,
+  testData: Record<string, unknown>
+): Promise<void> => {
+  const tableName = process.env.DYNAMODB_TABLE_NAME;
+
+  if (!tableName) {
+    throw new Error("DYNAMODB_TABLE_NAME environment variable is not defined");
+  }
+
+  const timestamp = new Date().toISOString();
+
+  const params = {
+    TableName: tableName,
+    Item: {
+      testId: testRunId,
+      SK: "TESTRUN#TESTDATA",
+      timestamp: timestamp,
+      data: testData,
+    },
+  };
+
+  try {
+    await docClient.put(params).promise();
+    console.log(`Test data saved successfully`);
+  } catch (error) {
+    console.error("Error saving test data:", error);
+    throw error;
+  }
+};
+
+export const getTestData = async (testRunId: string) => {
+  const tableName = process.env.DYNAMODB_TABLE_NAME;
+
+  if (!tableName) {
+    throw new Error("DYNAMODB_TABLE_NAME environment variable is not defined");
+  }
+
+  const params = {
+    TableName: tableName,
+    Key: {
+      testId: testRunId,
+      SK: "TESTRUN#TESTDATA",
+    },
+  };
+
+  const result = await docClient.get(params).promise();
+
+  if (!result.Item) {
+    return {};
+  }
+
+  return result.Item.data;
 };
