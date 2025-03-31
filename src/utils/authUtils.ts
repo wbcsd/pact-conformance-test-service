@@ -61,10 +61,11 @@ export const getAccessToken = async (
   const response = await fetch(url, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      Accept: "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
       Authorization: `Basic ${encodedCredentials}`,
     },
-    body: JSON.stringify({}),
+    body: "",
   });
 
   if (!response.ok) {
