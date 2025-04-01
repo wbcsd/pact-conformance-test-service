@@ -2,7 +2,7 @@ export interface TokenResponse {
   token: string;
 }
 
-const randomString = (length: number) => {
+export const randomString = (length: number) => {
   let variation =
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let string = "";

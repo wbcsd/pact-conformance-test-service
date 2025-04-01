@@ -11,6 +11,7 @@ import {
   getCorrectAuthHeaders,
   getOidAuthUrl,
   getIncorrectAuthHeaders,
+  randomString,
 } from "../utils/authUtils";
 import {
   fetchFootprints,
@@ -162,7 +163,7 @@ export const handler = async (
         },
         conditionErrorMessage: `Expected error code BadRequest in response.`,
         headers: {
-          Authorization: `Bearer very-invalid-access-token`, // TODO add a random string to the token
+          Authorization: `Bearer very-invalid-access-token-${randomString(16)}`,
         },
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
         ensureHttps: false,
@@ -178,7 +179,7 @@ export const handler = async (
         },
         conditionErrorMessage: `Expected error code BadRequest in response.`,
         headers: {
-          Authorization: `Bearer very-invalid-access-token`, // TODO add a random string to the token
+          Authorization: `Bearer very-invalid-access-token-${randomString(16)}`,
         },
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
         ensureHttps: false,
@@ -187,7 +188,7 @@ export const handler = async (
       {
         name: "Test Case 8: Attempt GetFootprint with Non-Existent PfId",
         method: "GET",
-        endpoint: `/2/footprints/random-string-as-id`, // TODO add a random uuid string to the id
+        endpoint: `/2/footprints/random-string-as-id-${randomString(16)}`,
         expectedStatusCodes: [404],
         condition: ({ code }) => {
           return code === "NoSuchFootprint";
@@ -279,7 +280,7 @@ export const handler = async (
           },
         },
         headers: {
-          Authorization: `Bearer very-invalid-access-token`, // TODO add a random string to the token
+          Authorization: `Bearer very-invalid-access-token-${randomString(16)}`,
         },
         condition: ({ code }) => {
           return code === "BadRequest";
@@ -295,7 +296,7 @@ export const handler = async (
         expectedStatusCodes: [200],
         requestData: {
           specversion: "1.0",
-          id: "string", // TODO generate uuid
+          id: randomUUID(),
           source: `${WEBHOOK_URL}?testRunId=${testRunId}&testCaseName=${encodeURIComponent(
             "TESTCASE#15"
           )}`,
@@ -320,7 +321,7 @@ export const handler = async (
         requestData: {
           type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
           specversion: "1.0",
-          id: "EventId", // TODO generate uuid
+          id: randomUUID(),
           source: `${WEBHOOK_URL}?testRunId=foo&testCaseName=bar`, // TODO send correct test ID and test case name
           time: new Date().toISOString(),
           data: {
