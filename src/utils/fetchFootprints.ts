@@ -1,9 +1,37 @@
-export const fetchFootprints = async (baseUrl: string, accessToken: string) =>
-  await fetch(`${baseUrl}/2/footprints`, {
+export const fetchFootprints = async (baseUrl: string, accessToken: string) => {
+  const footprintsUrl = `${baseUrl}/2/footprints`;
+  const response = await fetch(footprintsUrl, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
-  }).then((response) => response.json());
+  });
+
+  if (!response.ok) {
+    console.error(
+      `Error fetching footprints from ${footprintsUrl}: ${response.status} ${response.statusText}`
+    );
+    throw new Error(
+      `Error fetching footprints from ${footprintsUrl}: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const responseJson = await response.json();
+
+  if (
+    !responseJson.data ||
+    !Array.isArray(responseJson.data) ||
+    responseJson.data.length === 0
+  ) {
+    console.error(
+      `No footprint data returned from the API. Called ${footprintsUrl}`,
+      responseJson
+    );
+    throw new Error("No footprint data returned from the API");
+  }
+
+  return responseJson;
+};
+
 export const getLinksHeaderFromFootprints = async (
   baseUrl: string,
   accessToken: string
@@ -17,6 +45,7 @@ export const getLinksHeaderFromFootprints = async (
 
   return parseLinkHeader(linksHeader);
 };
+
 const parseLinkHeader = (header: string | null): Record<string, string> => {
   if (!header) return {};
 
