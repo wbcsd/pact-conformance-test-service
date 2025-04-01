@@ -1,5 +1,6 @@
+// See https://docs.carbon-transparency.org/v2/#authresponsebody
 export interface TokenResponse {
-  token: string;
+  access_token: string;
 }
 
 export const randomString = (length: number) => {
@@ -75,10 +76,10 @@ export const getAccessToken = async (
   }
 
   const data: TokenResponse = await response.json();
-  if (!data.token) {
+  if (!data.access_token) {
     throw new Error("Access token not present in response");
   }
-  return data.token;
+  return data.access_token;
 };
 
 // Get token_endpoint from .well-known endpoint
