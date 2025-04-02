@@ -3,6 +3,11 @@ import * as AWS from "aws-sdk";
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 
+const SK_TYPES = {
+  DETAILS: "TESTRUN#DETAILS",
+  TEST_DATA: "TESTRUN#TESTDATA",
+};
+
 interface TestRunDetails {
   testRunId: string;
   companyName: string;
@@ -32,7 +37,7 @@ export const saveTestRun = async ({
     TableName: tableName,
     Item: {
       testId: testRunId,
-      SK: "TESTRUN#DETAILS",
+      SK: SK_TYPES.DETAILS,
       timestamp: timestamp,
       companyName,
       companyIdentifier,
@@ -136,12 +141,10 @@ export const getTestResults = async (testRunId: string) => {
   }
 
   const testResults: TestResult[] = result.Items.filter(
-    (item) => item.SK !== "TESTRUN#DETAILS"
+    (item) => item.SK !== SK_TYPES.DETAILS && item.SK !== SK_TYPES.TEST_DATA
   ).map((item) => item.result);
 
-  const testDetails = result.Items.find(
-    (item) => item.SK === "TESTRUN#DETAILS"
-  );
+  const testDetails = result.Items.find((item) => item.SK === SK_TYPES.DETAILS);
 
   return {
     testRunId,
@@ -166,7 +169,7 @@ export const saveTestData = async (
     TableName: tableName,
     Item: {
       testId: testRunId,
-      SK: "TESTRUN#TESTDATA",
+      SK: SK_TYPES.TEST_DATA,
       timestamp: timestamp,
       data: testData,
     },
@@ -192,7 +195,7 @@ export const getTestData = async (testRunId: string) => {
     TableName: tableName,
     Key: {
       testId: testRunId,
-      SK: "TESTRUN#TESTDATA",
+      SK: SK_TYPES.TEST_DATA,
     },
   };
 
