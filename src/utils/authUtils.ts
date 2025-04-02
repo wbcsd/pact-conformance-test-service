@@ -66,12 +66,16 @@ export const getAccessToken = async (
       "Content-Type": "application/x-www-form-urlencoded",
       Authorization: `Basic ${encodedCredentials}`,
     },
-    body: "",
+    body: "grant_type=client_credentials",
   });
 
   if (!response.ok) {
+    console.error(
+      `Failed to obtain access token from ${url}. Status: ${response.status}`
+    );
+
     throw new Error(
-      `Failed to obtain access token. Status: ${response.status}`
+      `Failed to obtain access token from ${url}. Status: ${response.status}`
     );
   }
 
