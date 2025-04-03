@@ -98,7 +98,7 @@ export const handler = async (
       {
         name: "Test Case 1: Authentication against default endpoint",
         method: "POST",
-        endpoint: "/auth/token",
+        customUrl: oidAuthUrl || `${authBaseUrl}/auth/token`,
         expectedStatusCodes: [200],
         headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
@@ -108,7 +108,7 @@ export const handler = async (
       {
         name: "Test Case 2: Authentication with invalid credentials against default endpoint",
         method: "POST",
-        endpoint: "/auth/token",
+        customUrl: oidAuthUrl || `${authBaseUrl}/auth/token`,
         expectedStatusCodes: [400, 401],
         headers: getIncorrectAuthHeaders(baseUrl),
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
