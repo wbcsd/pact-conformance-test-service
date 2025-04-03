@@ -5,7 +5,7 @@ import { TestResult } from "../types/types";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { eventFulfilledSchema } from "../schemas/responseSchema";
-import { getTestData } from "../utils/dbUtils";
+import { getTestData, saveTestCaseResult } from "../utils/dbUtils";
 
 // Initialize DynamoDB clients
 const dynamoClient = new DynamoDBClient({});
@@ -36,7 +36,7 @@ export const handler = async (
     }
 
     // Parse and log the request body
-    if (event.body) {
+    if (event.body && event.queryStringParameters?.testRunId) {
       const body = JSON.parse(event.body);
       console.log("Request body:", JSON.stringify(body, null, 2));
 
@@ -89,21 +89,14 @@ export const handler = async (
           };
         }
 
-        // Save the test result to DynamoDB
-        await docClient.send(
-          new PutCommand({
-            TableName: tableName,
-            Item: {
-              testId: event.queryStringParameters?.testRunId,
-              SK: testResult.testKey,
-              timestamp: new Date().toISOString(),
-              result: testResult,
-            },
-          })
+        await saveTestCaseResult(
+          event.queryStringParameters.testRunId,
+          testResult,
+          true
         );
       }
     } else {
-      console.log("No request body received");
+      console.log("No request body received or testRunId is missing");
     }
 
     // Return a 200 success response with empty body

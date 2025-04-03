@@ -58,11 +58,9 @@ export const saveTestRun = async ({
 
 export const saveTestCaseResult = async (
   testRunId: string,
-  testResult: TestResult
+  testResult: TestResult,
+  overWriteExisting: boolean
 ): Promise<void> => {
-  const AWS = require("aws-sdk");
-  const docClient = new AWS.DynamoDB.DocumentClient();
-
   const tableName = process.env.DYNAMODB_TABLE_NAME;
 
   if (!tableName) {
@@ -71,7 +69,7 @@ export const saveTestCaseResult = async (
 
   const timestamp = new Date().toISOString();
 
-  const params = {
+  const params: AWS.DynamoDB.DocumentClient.PutItemInput = {
     TableName: tableName,
     Item: {
       testId: testRunId,
@@ -79,15 +77,17 @@ export const saveTestCaseResult = async (
       timestamp: timestamp,
       result: testResult,
     },
-    ConditionExpression:
-      "attribute_not_exists(testId) AND attribute_not_exists(SK)",
   };
+
+  if (!overWriteExisting) {
+    params.ConditionExpression =
+      "attribute_not_exists(testId) AND attribute_not_exists(SK)";
+  }
 
   try {
     await docClient.put(params).promise();
-    console.log(`Test case ${testResult.name} saved successfully`);
   } catch (error) {
-    console.error("Error saving test case:", error);
+    console.error(`Error saving test case: ${testResult.name}`, error);
     throw error;
   }
 };
@@ -101,7 +101,7 @@ export const saveTestCaseResults = async (
   // Process test results sequentially
   for (const testResult of testResults) {
     try {
-      await saveTestCaseResult(testRunId, testResult);
+      await saveTestCaseResult(testRunId, testResult, false);
     } catch (error: any) {
       console.error(`Failed to save test case ${testResult.name}:`, error);
 

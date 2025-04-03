@@ -6,6 +6,7 @@ resource "aws_lambda_function" "run_test_cases" {
   filename         = "../lambdas.zip"
   timeout          = 30
   source_code_hash = filebase64sha256("../lambdas.zip")
+  memory_size      = 1024
 
   environment {
     variables = {
