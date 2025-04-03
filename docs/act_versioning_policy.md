@@ -1,5 +1,5 @@
 # ACT Versioning and Retesting Policy
-We recognize as with any software, user feedback will heavily shape improvements to the ACT over time. We plan to actively continue developing and maintaining MVP following its initial release (see the [public backlog](https://github.com/orgs/wbcsd/projects/4) for details. Further, we also recognize it is impossible to guarantee the first launched version of ACT for any given version of the PACT Technical Specifications will always be bug-free and contain a fully comprehensive testing suite.  
+We recognize as with any software, user feedback will heavily shape improvements to the ACT over time. We plan to actively continue developing and maintaining MVP following its initial release (see the [public backlog](https://github.com/orgs/wbcsd/projects/4) for details). Further, we also recognize it is impossible to guarantee the first launched version of ACT for any given version of the PACT Technical Specifications will be bug-free and contain a fully comprehensive testing suite.  
 
 Therefore, we present below the versioning scheme and governance processes we will use to ensure ACT versions will be managed clearly and simply. We also present the implication of ACT versions on PACT Conformance status, ensuring rigor, consistency, and simplicity.
 
