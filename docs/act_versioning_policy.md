@@ -1,5 +1,5 @@
 # ACT Versioning and Retesting Policy
-We recognize as with any software, user feedback will heavily shape improvements to the ACT over time. We plan to actively continue developing and maintaining MVP following its initial release (see the [public backlog](https://github.com/orgs/wbcsd/projects/4) for details. Further, we also recognize it is impossible to guarantee the first launched version of ACT for any given version of the PACT Technical Specifications will always be bug-free and contain a fully comprehensive testing suite.  
+We recognize as with any software, user feedback will heavily shape improvements to the ACT over time. We plan to actively continue developing and maintaining MVP following its initial release (see the [public backlog](https://github.com/orgs/wbcsd/projects/4) for details). Further, we also recognize it is impossible to guarantee the first launched version of ACT for any given version of the PACT Technical Specifications will be bug-free and contain a fully comprehensive testing suite.  
 
 Therefore, we present below the versioning scheme and governance processes we will use to ensure ACT versions will be managed clearly and simply. We also present the implication of ACT versions on PACT Conformance status, ensuring rigor, consistency, and simplicity.
 
@@ -21,8 +21,7 @@ Therefore, we present below the versioning scheme and governance processes we wi
 
 
 ## ACT / Tech Specs discrepancy resolution process
-* We acknowledge that during the use of ACT, and especially throughout the Alpha and Beta Phases, the community may encounter questions regarding discrepancies and/or differences of interpretation between the Tech Specs and ACT. This is expected and our goal with ACT is to systematically address and remove these discrepancies, thus driving interoperability robustness.
-* We will use the process defined below to resolve discrepancies / issues with ACT as a community
+We acknowledge that during the use of ACT, and especially throughout the Alpha and Beta Phases, the community may encounter questions regarding discrepancies and/or differences of interpretation between the Tech Specs and ACT. This is expected and our goal with ACT is to systematically address and remove these discrepancies, thus driving interoperability robustness. We will use the process defined below to resolve discrepancies / issues with ACT as a community,
 * During use of ACT, a Solution Provider is expected to share feedback if they encounter any of the following, per their interpretation: 
   * a test case of ACT does not correctly implement the PACT Tech Specs
   * PACT Tech Specs are ambiguous and therefore a discrepancy exists between ACT and PACT Tech Specs
