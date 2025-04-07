@@ -96,7 +96,7 @@ export const handler = async (
     // TODO Add support for https
     const testCases: TestCase[] = [
       {
-        name: "Test Case 1: Authentication against default endpoint",
+        name: "Test Case 1: Obtain auth token with valid credentials",
         method: "POST",
         customUrl: oidAuthUrl || `${authBaseUrl}/auth/token`,
         expectedStatusCodes: [200],
@@ -106,7 +106,7 @@ export const handler = async (
         testKey: "TESTCASE#1",
       },
       {
-        name: "Test Case 2: Authentication with invalid credentials against default endpoint",
+        name: "Test Case 2: Obtain auth token with invalid credentials",
         method: "POST",
         customUrl: oidAuthUrl || `${authBaseUrl}/auth/token`,
         expectedStatusCodes: [400, 401],
