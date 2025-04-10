@@ -3,7 +3,7 @@ import * as AWS from "aws-sdk";
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 
-const SK_TYPES = {
+export const SK_TYPES = {
   DETAILS: "TESTRUN#DETAILS",
   TEST_DATA: "TESTRUN#TESTDATA",
 };
