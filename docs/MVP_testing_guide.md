@@ -23,6 +23,7 @@ Before beginning testing, organizations must complete the following pre-requisit
 - You are taken to a page with your company profile. The pages "My Profile", "Search", and "Manage Connections" are functionality of the PACT Identity Management service, which you are welcome to explore and test but are not relevant to Automated Conformance Testing. See [Identity Management GitHub](https://github.com/wbcsd/pact-directory).
 - Go to "Conformance Testing"
 - Enter in details, and click "Run tests"; the rest should be self-explanatory
-- Make note of your feedback (questions, comments, etc.) and once you have completed testing, please write to Beth Hadley (hadley@wbcsd.org) to share your feedback and schedule a call to de-brief
+- As you proceed, if you encounter issues, especially technical issues, we prefer you to raise an isssue in GitHub (https://github.com/wbcsd/pact-conformance-test-service/blob/main/docs/MVP_testing_guide.md) if possible. This helps us triage issues and rapidly address your feedback.
+- We encourage you to make note of all feedback, and either raise a GitHub issue, write to Beth Hadley (hadley@wbcsd.org), or share the feedback during the Network Services Sub-WG. 
 - We look forward to your feedback and revising the MVP accordingly!
 
