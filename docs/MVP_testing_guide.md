@@ -14,7 +14,7 @@ The MVP testing phase kicked off March 20, 2025 - we encourage organizations to 
 ## Pre-requisites to testing
 Before beginning testing, organizations must complete the following pre-requisites:
 - Build a PACT Conformant Solution (or at least partial PACT Conformant Solution) based on [PACT Tech Specs](https://docs.carbon-transparency.org/) Version 2.0, 2.1, 2.2, or 2.3: 
-- Configure your solution to be able to authenticate Action Event requests using the following credentials:
+- Configure your solution to be able to authenticate ACT's endpoint and make Action Event requests ACT will accept using the following credentials (see [sourcecode]( https://github.com/wbcsd/pact-conformance-test-service/blob/main/src/lambda/authForAsyncListener.ts) for details).
   - clientId: `test_client_id`
   - clientSecret: `test_client_secret`
 
