@@ -21,12 +21,28 @@ export const handler = async (
 
     const result = await getTestResults(testRunId);
 
+    // Calculate passing percentage
+    const mandatoryTests = result.results.filter((test) => test.mandatory);
+    const failedMandatoryTests = mandatoryTests.filter((test) => !test.success);
+
+    const passingPercentage =
+      mandatoryTests.length > 0
+        ? Math.round(
+            ((mandatoryTests.length - failedMandatoryTests.length) /
+              mandatoryTests.length) *
+              100
+          )
+        : 0;
+
     return {
       statusCode: 200,
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(result),
+      body: JSON.stringify({
+        ...result,
+        passingPercentage,
+      }),
     };
   } catch (error) {
     console.error("Error retrieving test results:", error);

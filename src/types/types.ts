@@ -11,6 +11,14 @@ interface TestCaseResult {
 export enum TestCaseNames {
   AUTHENTICATE_WITH_INCORRECT_CREDENTIALS = "Authenticate with incorrect credentials",
 }
+
+// Constants for test run status
+export enum TestRunStatus {
+  PASS = "PASS",
+  FAIL = "FAIL",
+  PENDING = "PENDING",
+}
+
 export interface TestCase {
   name: string;
   method: "GET" | "POST" | "PUT" | "DELETE";
