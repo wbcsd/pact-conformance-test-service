@@ -97,7 +97,10 @@ export const runTestCase = async (
   };
 
   if (testCase.requestData) {
-    options.body = JSON.stringify(testCase.requestData);
+    options.body =
+      typeof testCase.requestData === "string"
+        ? testCase.requestData
+        : JSON.stringify(testCase.requestData);
   }
 
   if (testCase.headers) {
