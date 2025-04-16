@@ -342,6 +342,7 @@ export const handler = async (
         headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
         ensureHttps: false,
         testKey: "TESTCASE#17",
+        requestData: "grant_type=client_credentials",
       },
       {
         name: "Test Case 18: OpenId connect-based authentication flow with incorrect credentials",
