@@ -42,6 +42,7 @@ export interface TestResult {
   apiResponse?: string;
   mandatory: boolean;
   testKey: string;
+  curlRequest?: string;
 }
 
 export type ApiVersion = "V2.0" | "V2.1" | "V2.2" | "V2.3";

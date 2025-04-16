@@ -10,6 +10,30 @@ const isMandatoryVersion = (testCase: TestCase, version: ApiVersion) => {
 };
 
 /**
+ * Generates a curl command representation of the HTTP request
+ */
+const generateCurlCommand = (
+  url: string,
+  method: string,
+  headers: Record<string, string>,
+  body?: string
+): string => {
+  let curlCmd = `curl -X ${method} '${url}'`;
+
+  // Add headers
+  for (const [key, value] of Object.entries(headers)) {
+    curlCmd += ` -H '${key}: ${value}'`;
+  }
+
+  // Add request body if present
+  if (body) {
+    curlCmd += ` -d '${body}'`;
+  }
+
+  return curlCmd;
+};
+
+/**
  * Runs an individual test case against the API.
  * Validates both the HTTP status and the JSON response against a provided schema.
  */
@@ -27,6 +51,7 @@ export const runTestCase = async (
       errorMessage: "Either endpoint or customUrl must be provided",
       mandatory: isMandatoryVersion(testCase, version),
       testKey: testCase.testKey,
+      curlRequest: "N/A - Missing URL",
     };
   }
 
@@ -35,6 +60,23 @@ export const runTestCase = async (
   // TODO: the case is about refusing the request, tighten the implementation later
   // ... just replace https with http in the request and expect an error code
   if (testCase.ensureHttps && !url.startsWith("https://")) {
+    const httpUrl = url.replace(/^https?:\/\//, "http://");
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+      ...(testCase.headers || {}),
+    };
+
+    const body = testCase.requestData
+      ? JSON.stringify(testCase.requestData)
+      : undefined;
+    const curlCmd = generateCurlCommand(
+      httpUrl,
+      testCase.method,
+      headers,
+      body
+    );
+
     return {
       name: testCase.name,
       status: "FAILURE",
@@ -42,6 +84,7 @@ export const runTestCase = async (
       errorMessage: `HTTPS is required for this endpoint, but the URL is ${url}`,
       mandatory: isMandatoryVersion(testCase, version),
       testKey: testCase.testKey,
+      curlRequest: curlCmd,
     };
   }
 
@@ -64,6 +107,11 @@ export const runTestCase = async (
     };
   }
 
+  // Generate curl command before making the actual request
+  const headers = options.headers as Record<string, string>;
+  const body = options.body as string | undefined;
+  const curlCmd = generateCurlCommand(url, testCase.method, headers, body);
+
   try {
     const response = await fetch(url, options);
 
@@ -77,6 +125,7 @@ export const runTestCase = async (
         )}], but got ${response.status}`,
         mandatory: isMandatoryVersion(testCase, version),
         testKey: testCase.testKey,
+        curlRequest: curlCmd,
       };
     }
 
@@ -103,6 +152,7 @@ export const runTestCase = async (
           apiResponse: JSON.stringify(responseData),
           mandatory: isMandatoryVersion(testCase, version),
           testKey: testCase.testKey,
+          curlRequest: curlCmd,
         };
       }
     }
@@ -121,6 +171,7 @@ export const runTestCase = async (
           apiResponse: JSON.stringify(responseData),
           mandatory: isMandatoryVersion(testCase, version),
           testKey: testCase.testKey,
+          curlRequest: curlCmd,
         };
       }
     }
@@ -131,6 +182,7 @@ export const runTestCase = async (
       success: true,
       mandatory: isMandatoryVersion(testCase, version),
       testKey: testCase.testKey,
+      curlRequest: curlCmd,
     };
   } catch (error: any) {
     return {
@@ -140,6 +192,7 @@ export const runTestCase = async (
       errorMessage: error.message,
       mandatory: isMandatoryVersion(testCase, version),
       testKey: testCase.testKey,
+      curlRequest: curlCmd,
     };
   }
 };
