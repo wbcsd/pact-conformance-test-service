@@ -202,6 +202,7 @@ export const handler = async (
       },
       {
         name: "Test Case 9: Attempt Authentication through HTTP (non-HTTPS)",
+        customUrl: oidAuthUrl || `${authBaseUrl}/auth/token`,
         method: "POST",
         endpoint: "/auth/token",
         expectedStatusCodes: [200],
