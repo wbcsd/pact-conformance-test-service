@@ -14,7 +14,7 @@ The MVP testing phase kicked off March 20, 2025 - we encourage organizations to 
 ## Pre-requisites to testing
 Before beginning testing, organizations must complete the following pre-requisites:
 - Build a PACT Conformant Solution (or at least partial PACT Conformant Solution) based on [PACT Tech Specs](https://docs.carbon-transparency.org/) Version 2.0, 2.1, 2.2, or 2.3: 
-- Configure your solution to be able to authenticate Action Event requests using the following credentials:
+- Configure your solution to be able to authenticate ACT's endpoint and make Action Event requests ACT will accept using the following credentials (see [sourcecode]( https://github.com/wbcsd/pact-conformance-test-service/blob/main/src/lambda/authForAsyncListener.ts) for details).
   - clientId: `test_client_id`
   - clientSecret: `test_client_secret`
 
@@ -23,6 +23,7 @@ Before beginning testing, organizations must complete the following pre-requisit
 - You are taken to a page with your company profile. The pages "My Profile", "Search", and "Manage Connections" are functionality of the PACT Identity Management service, which you are welcome to explore and test but are not relevant to Automated Conformance Testing. See [Identity Management GitHub](https://github.com/wbcsd/pact-directory).
 - Go to "Conformance Testing"
 - Enter in details, and click "Run tests"; the rest should be self-explanatory
-- Make note of your feedback (questions, comments, etc.) and once you have completed testing, please write to Beth Hadley (hadley@wbcsd.org) to share your feedback and schedule a call to de-brief
+- As you proceed, if you encounter issues, especially technical issues, we prefer you to raise an isssue in GitHub (https://github.com/wbcsd/pact-conformance-test-service/blob/main/docs/MVP_testing_guide.md) if possible. This helps us triage issues and rapidly address your feedback.
+- We encourage you to make note of all feedback, and either raise a GitHub issue, write to Beth Hadley (hadley@wbcsd.org), or share the feedback during the Network Services Sub-WG. 
 - We look forward to your feedback and revising the MVP accordingly!
 
