@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { randomUUID } from "crypto";
 import { ApiVersion, TestCase, TestResult } from "../types/types";
 import {
-  v2ResponseSchema,
+  v2_3_ResponseSchema,
   simpleResponseSchema,
   simpleSingleFootprintResponseSchema,
 } from "../schemas/responseSchema";
@@ -136,7 +136,7 @@ export const handler = async (
         method: "GET",
         endpoint: "/2/footprints",
         expectedStatusCodes: [200, 202],
-        schema: v2ResponseSchema,
+        schema: v2_3_ResponseSchema,
         condition: ({ data }) => {
           return data.length === footprints.data.length;
         },
