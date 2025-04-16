@@ -4,6 +4,7 @@ import { SK_TYPES, getTestResults } from "../utils/dbUtils";
 import { TestRunStatus } from "../types/types";
 
 const docClient = new AWS.DynamoDB.DocumentClient();
+const MAX_TEST_RUNS_TO_ENRICH = 10;
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -33,7 +34,7 @@ export const handler = async (
 
     // Scan parameters to get all records with the specified adminEmail
     // and SK = TESTRUN#DETAILS
-    const params = {
+    const params: AWS.DynamoDB.DocumentClient.ScanInput = {
       TableName: tableName,
       FilterExpression: "adminEmail = :adminEmail AND SK = :sk",
       ExpressionAttributeValues: {
@@ -42,10 +43,26 @@ export const handler = async (
       },
     };
 
-    const result = await docClient.scan(params).promise();
+    let testRuns: AWS.DynamoDB.DocumentClient.ItemList = [];
+    let lastEvaluatedKey;
 
-    // Return the test runs with basic formatting
-    const testRuns = result.Items || [];
+    // Use pagination to scan DynamoDB to retrieve all items
+    do {
+      // Add LastEvaluatedKey to params if available from last scan
+      if (lastEvaluatedKey) {
+        params.ExclusiveStartKey = lastEvaluatedKey;
+      }
+
+      const result = await docClient.scan(params).promise();
+
+      // Add items from this scan to our collection
+      if (result.Items && result.Items.length > 0) {
+        testRuns = [...testRuns, ...result.Items];
+      }
+
+      // Get the LastEvaluatedKey for next scan if available
+      lastEvaluatedKey = result.LastEvaluatedKey;
+    } while (lastEvaluatedKey);
 
     // Sort by timestamp (most recent first)
     testRuns.sort(
@@ -53,9 +70,12 @@ export const handler = async (
         new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
 
-    // Enrich the test runs with status information
+    // Get only the top 10 most recent test runs to enrich
+    const topTestRuns = testRuns.slice(0, MAX_TEST_RUNS_TO_ENRICH);
+
+    // Enrich the top test runs with status information
     const enrichedTestRuns = await Promise.all(
-      testRuns.map(async (testRun) => {
+      topTestRuns.map(async (testRun) => {
         // Get test results for this test run
         const testResults = await getTestResults(testRun.testId);
 
@@ -88,7 +108,8 @@ export const handler = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        count: enrichedTestRuns.length,
+        totalCount: testRuns.length,
+        returnedCount: enrichedTestRuns.length,
         testRuns: enrichedTestRuns,
       }),
     };
