@@ -151,7 +151,6 @@ export const v2_1_ResponseSchema = {
         "fossilCarbonContent",
         "biogenicCarbonContent",
         "characterizationFactors",
-        "ipccCharacterizationFactorsSources",
         "crossSectoralStandardsUsed",
         "boundaryProcessesDescription",
         "exemptedEmissionsPercent",
@@ -177,11 +176,6 @@ export const v2_1_ResponseSchema = {
           pattern: "^[+]?((\\d*[1-9]\\d*)(\\.\\d+)?|(0+\\.\\d*[1-9]\\d*))$",
           description:
             "The amount of declared unit contained in the product (must be > 0).",
-        },
-        productMassPerDeclaredUnit: {
-          type: "string",
-          pattern: "^[+-]?\\d+(\\.\\d+)?$",
-          description: "Mass (in kg) of the product per declared unit.",
         },
         pCfExcludingBiogenic: {
           type: "string",
@@ -244,16 +238,6 @@ export const v2_1_ResponseSchema = {
           type: "string",
           enum: ["AR6", "AR5"],
           description: "IPCC GWP characterization factors.",
-        },
-        ipccCharacterizationFactorsSources: {
-          type: "array",
-          items: {
-            type: "string",
-            pattern: "^AR\\d+$",
-          },
-          minItems: 1,
-          uniqueItems: true,
-          description: "IPCC characterization factor versions used.",
         },
         crossSectoralStandardsUsed: {
           type: "array",

@@ -151,7 +151,6 @@ export const v2_0_ResponseSchema = {
         "fossilCarbonContent",
         "biogenicCarbonContent",
         "characterizationFactors",
-        "ipccCharacterizationFactorsSources",
         "crossSectoralStandardsUsed",
         "boundaryProcessesDescription",
         "exemptedEmissionsPercent",
@@ -177,11 +176,6 @@ export const v2_0_ResponseSchema = {
           pattern: "^[+]?((\\d*[1-9]\\d*)(\\.\\d+)?|(0+\\.\\d*[1-9]\\d*))$",
           description:
             "The amount of declared unit contained in the product (must be > 0).",
-        },
-        productMassPerDeclaredUnit: {
-          type: "string",
-          pattern: "^[+-]?\\d+(\\.\\d+)?$",
-          description: "Mass (in kg) of the product per declared unit.",
         },
         pCfExcludingBiogenic: {
           type: "string",
@@ -245,16 +239,6 @@ export const v2_0_ResponseSchema = {
           enum: ["AR6", "AR5"],
           description: "IPCC GWP characterization factors.",
         },
-        ipccCharacterizationFactorsSources: {
-          type: "array",
-          items: {
-            type: "string",
-            pattern: "^AR\\d+$",
-          },
-          minItems: 1,
-          uniqueItems: true,
-          description: "IPCC characterization factor versions used.",
-        },
         crossSectoralStandardsUsed: {
           type: "array",
           items: {
@@ -268,6 +252,45 @@ export const v2_0_ResponseSchema = {
           minItems: 1,
           uniqueItems: true,
           description: "Cross-sectoral standards used.",
+        },
+        productOrSectorSpecificRules: {
+          type: "array",
+          items: {
+            type: "object",
+            required: ["operator", "ruleNames"],
+            properties: {
+              operator: {
+                type: "string",
+                enum: ["PEF", "EPD International", "Other"],
+                description:
+                  "Operator of PCR being used for the PCF calculation.",
+              },
+              ruleNames: {
+                type: "array",
+                items: {
+                  type: "string",
+                  minLength: 1,
+                },
+                minItems: 1,
+                uniqueItems: true,
+                description: "Names of the product or sector specific rules.",
+              },
+              otherOperatorName: {
+                type: "string",
+                minLength: 1,
+                description: "Name of the operator if 'Other' is selected.",
+              },
+            },
+          },
+          minItems: 1,
+          uniqueItems: true,
+          description: "Product or sector specific rules applied.",
+        },
+        biogenicAccountingMethodology: {
+          type: "string",
+          enum: ["PEF", "ISO", "GHGP", "Quantis"],
+          description:
+            "Standard followed to account for biogenic emissions and removals.",
         },
         boundaryProcessesDescription: {
           type: "string",

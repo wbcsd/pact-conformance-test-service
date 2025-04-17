@@ -178,11 +178,6 @@ export const v2_2_ResponseSchema = {
           description:
             "The amount of declared unit contained in the product (must be > 0).",
         },
-        productMassPerDeclaredUnit: {
-          type: "string",
-          pattern: "^[+-]?\\d+(\\.\\d+)?$",
-          description: "Mass (in kg) of the product per declared unit.",
-        },
         pCfExcludingBiogenic: {
           type: "string",
           pattern: "^[+]?\\d+(\\.\\d+)?$",
