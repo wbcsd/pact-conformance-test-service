@@ -2,6 +2,9 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { randomUUID } from "crypto";
 import { ApiVersion, TestCase, TestResult } from "../types/types";
 import {
+  v2_0_ResponseSchema,
+  v2_1_ResponseSchema,
+  v2_2_ResponseSchema,
   v2_3_ResponseSchema,
   simpleResponseSchema,
   simpleSingleFootprintResponseSchema,
@@ -91,6 +94,22 @@ export const handler = async (
       version,
     });
 
+    // Get the correct response schema based on the version
+    const responseSchema = (() => {
+      switch (version) {
+        case "V2.0":
+          return v2_0_ResponseSchema;
+        case "V2.1":
+          return v2_1_ResponseSchema;
+        case "V2.2":
+          return v2_2_ResponseSchema;
+        case "V2.3":
+          return v2_3_ResponseSchema;
+        default:
+          return v2_3_ResponseSchema; // Default to latest if unknown
+      }
+    })();
+
     // TODO when the test cases are optional, returning 400 not implemented is also an option. Confirm with the team
     // TODO confirm if in the case of limit and filtering for < 2.3 the endpoint should return 400 or 200 without filtering and limit
     // TODO Add support for https
@@ -136,7 +155,7 @@ export const handler = async (
         method: "GET",
         endpoint: "/2/footprints",
         expectedStatusCodes: [200, 202],
-        schema: v2_3_ResponseSchema,
+        schema: responseSchema,
         condition: ({ data }) => {
           return data.length === footprints.data.length;
         },
