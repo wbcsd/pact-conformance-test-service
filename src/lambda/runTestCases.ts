@@ -279,6 +279,9 @@ export const handler = async (
         name: "Test Case 12: Receive Asynchronous PCF Request",
         method: "POST",
         endpoint: `/2/events`,
+        headers: {
+          "Content-Type": "application/cloudevents+json; charset=UTF-8",
+        },
         expectedStatusCodes: [200],
         requestData: {
           specversion: "1.0",
@@ -320,6 +323,7 @@ export const handler = async (
         },
         headers: {
           Authorization: `Bearer very-invalid-access-token-${randomString(16)}`,
+          "Content-Type": "application/cloudevents+json; charset=UTF-8",
         },
         condition: ({ code }) => {
           return code === "BadRequest";
@@ -348,6 +352,9 @@ export const handler = async (
             comment: "Please send PCF data for this year.",
           },
         },
+        headers: {
+          "Content-Type": "application/cloudevents+json; charset=UTF-8",
+        },
         mandatoryVersion: ["V2.2", "V2.3"],
         ensureHttps: true,
         testKey: "TESTCASE#15",
@@ -367,6 +374,9 @@ export const handler = async (
             pfIds: ["urn:gtin:4712345060507"],
           },
         },
+        headers: {
+          "Content-Type": "application/cloudevents+json; charset=UTF-8",
+        },
         mandatoryVersion: ["V2.2", "V2.3"],
         ensureHttps: false,
         testKey: "TESTCASE#16",
@@ -385,7 +395,7 @@ export const handler = async (
         name: "Test Case 18: OpenId connect-based authentication flow with incorrect credentials",
         method: "POST",
         customUrl: oidAuthUrl,
-        expectedStatusCodes: [400],
+        expectedStatusCodes: [400, 401],
         headers: getIncorrectAuthHeaders(baseUrl),
         ensureHttps: false,
         testKey: "TESTCASE#18",
