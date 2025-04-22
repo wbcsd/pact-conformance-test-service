@@ -240,12 +240,12 @@ export const handler = async (
         name: "Test Case 9: Attempt Authentication through HTTP (non-HTTPS)",
         customUrl: oidAuthUrl || `${authBaseUrl}/auth/token`,
         method: "POST",
-        endpoint: "/auth/token",
         expectedStatusCodes: [200],
         headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
         ensureHttps: true,
         testKey: "TESTCASE#9",
+        requestData: "grant_type=client_credentials",
       },
       {
         name: "Test Case 10: Attempt ListFootprints through HTTP (non-HTTPS)",
