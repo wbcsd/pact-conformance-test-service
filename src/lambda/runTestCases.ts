@@ -57,7 +57,24 @@ export const handler = async (
     customAuthBaseUrl?: string;
   } = JSON.parse(event.body || "{}");
 
-  // TODO validate body, all fields must be present
+  if (
+    !baseUrl ||
+    !clientId ||
+    !clientSecret ||
+    !version ||
+    !companyName ||
+    !companyIdentifier ||
+    !adminEmail ||
+    !adminFullName
+  ) {
+    console.error("Missing required parameters");
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        message: "Missing required parameters",
+      }),
+    };
+  }
 
   try {
     const testRunId = randomUUID();
@@ -372,6 +389,7 @@ export const handler = async (
         headers: getIncorrectAuthHeaders(baseUrl),
         ensureHttps: false,
         testKey: "TESTCASE#18",
+        requestData: "grant_type=client_credentials",
       },
       {
         name: "Test Case 19: Get Filtered List of Footprints",
@@ -415,7 +433,7 @@ export const handler = async (
         name: "Test Case 13: Respond to Asynchronous PCF Request",
         status: "PENDING",
         success: false,
-        mandatory: false,
+        mandatory: version === "V2.3",
         testKey: "TESTCASE#13",
       },
     ];
@@ -423,11 +441,12 @@ export const handler = async (
     await saveTestCaseResults(testRunId, resultsWithAsyncPlaceholder);
 
     // If any test failed, return an error response.
-    const failedTests = resultsWithAsyncPlaceholder.filter(
-      (result) => !result.success
+    const mandatoryFailedTests = resultsWithAsyncPlaceholder.filter(
+      (result) => result.mandatory && !result.success
     );
-    if (failedTests.length > 0) {
-      console.error("Some tests failed:", failedTests);
+
+    if (mandatoryFailedTests.length > 0) {
+      console.error("Some tests failed:", mandatoryFailedTests);
       // Filter out optional tests for passing percentage calculation
       const mandatoryTests = resultsWithAsyncPlaceholder.filter(
         (result) => result.mandatory
