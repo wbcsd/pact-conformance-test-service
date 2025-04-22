@@ -2,6 +2,7 @@ import { handler } from "../../lambda/runTestCases";
 import { APIGatewayProxyEvent } from "aws-lambda";
 import nock from "nock";
 import * as dbUtils from "../../utils/dbUtils";
+import { mockFootprints } from "../mocks/footprints";
 
 // Mock the environment variables
 process.env.WEBHOOK_URL = "https://webhook.test.url";
@@ -27,46 +28,6 @@ describe("runTestCases Lambda handler with nock", () => {
   const mockClientId = "test-client-id";
   const mockClientSecret = "test-client-secret";
   const mockAccessToken = "mock-access-token-12345";
-
-  // Sample footprint data that matches the structure expected in the code
-  const mockFootprints = {
-    data: [
-      {
-        id: "123e4567-e89b-12d3-a456-426614174000",
-        specVersion: "2.0.0",
-        version: 1, // Changed to integer
-        status: "Active", // Changed to match the enum
-        comment: "This is a test footprint",
-        companyName: "Test Company",
-        companyIds: ["urn:example:company:test-company"],
-        productDescription: "Test product description",
-        productCategoryCpc: "Test category",
-        productNameCompany: "Test Product",
-        productIds: ["urn:product-id-1", "urn:product-id-2"],
-        pcf: {
-          declaredUnit: "kilogram",
-          carbonFootprintTotalkg: 10.5,
-          carbonFootprintBreakdown: {},
-          // Adding required fields for pcf with correct types
-          unitaryProductAmount: "1.0", // Changed to string
-          referencePeriodStart: "2025-01-01T00:00:00Z",
-          referencePeriodEnd: "2025-12-31T23:59:59Z",
-          pCfExcludingBiogenic: "10.5", // Changed to string
-          fossilGhgEmissions: "10.0", // Changed to string
-          fossilCarbonContent: "1.0", // Changed to string
-          biogenicCarbonContent: "0.5", // Changed to string
-          characterizationFactors: "AR5", // Changed to match enum
-          ipccCharacterizationFactorsSources: ["AR5"],
-          crossSectoralStandardsUsed: ["GHG Protocol Product standard"], // Updated to match enum
-          boundaryProcessesDescription: "Test boundary processes",
-          exemptedEmissionsPercent: 0,
-          exemptedEmissionsDescription: "No exempted emissions",
-          packagingEmissionsIncluded: true,
-        },
-        created: "2025-01-01T00:00:00Z",
-      },
-    ],
-  };
 
   // Prepare the APIGatewayProxyEvent mock
   const createEvent = (body: any): APIGatewayProxyEvent => {
@@ -101,7 +62,7 @@ describe("runTestCases Lambda handler with nock", () => {
     nock.cleanAll();
   });
 
-  // Enable nock debugging
+  // Block all external network connections
   nock.disableNetConnect();
 
   test("should execute test cases with real HTTP mocks and return success when all tests pass", async () => {
@@ -114,7 +75,7 @@ describe("runTestCases Lambda handler with nock", () => {
 
     // Mock for Test Case 6: Invalid token for ListFootprints
     nock(mockBaseUrl)
-      .get(/\/2\/footprints$/)
+      .get("/2/footprints")
       .matchHeader("authorization", (value: string): boolean => {
         return Boolean(
           value &&
@@ -142,7 +103,7 @@ describe("runTestCases Lambda handler with nock", () => {
 
     // Mock for Test Case 14: Invalid token for Events
     nock(mockBaseUrl)
-      .post(/\/2\/events/)
+      .post("/2/events")
       .matchHeader("authorization", (value: string): boolean => {
         return Boolean(
           value &&
@@ -204,31 +165,22 @@ describe("runTestCases Lambda handler with nock", () => {
 
     // Mock for Test Case 3: GetFootprint
     persistentNock(mockBaseUrl)
-      .get(/\/2\/footprints\/123e4567-e89b-12d3-a456-426614174000/)
-      .reply(200, { data: mockFootprints.data[0] });
-
-    // Add a general mock for any GetFootprint request that matches the pattern for any UUID
-    persistentNock(mockBaseUrl)
-      .get(
-        /\/2\/footprints\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
-      )
+      .get("/2/footprints/123e4567-e89b-12d3-a456-426614174000")
       .reply(200, { data: mockFootprints.data[0] });
 
     // Mock for Test Case 4: ListFootprints
-    persistentNock(mockBaseUrl)
-      .get(/\/2\/footprints$/)
-      .reply(200, mockFootprints);
+    persistentNock(mockBaseUrl).get("/2/footprints").reply(200, mockFootprints);
 
     // Mock for Test Case 5: Pagination with limit parameter
     persistentNock(mockBaseUrl)
-      .get(/\/2\/footprints\?limit=1/)
+      .get("/2/footprints?limit=1")
       .reply(200, mockFootprints, {
         Link: `<${mockBaseUrl}/2/footprints?page=2&limit=1>; rel="next"`,
       });
 
     // Mock for Test Case 5: Pagination
     persistentNock(mockBaseUrl)
-      .get(/\/2\/footprints\?page=2/)
+      .get("/2/footprints?page=2&limit=1")
       .reply(200, mockFootprints);
 
     // Mock for Test Case 8: Non-existent footprint
@@ -237,22 +189,12 @@ describe("runTestCases Lambda handler with nock", () => {
       .reply(404, { code: "NoSuchFootprint", message: "Footprint not found" });
 
     // Mock for Test Case 12 & 16: Events
-    persistentNock(mockBaseUrl)
-      .post(/\/2\/events/)
-      .reply(200, { success: true });
+    persistentNock(mockBaseUrl).post("/2/events").reply(200, { success: true });
 
     // Mock for Test Case 19: Filtered list
     persistentNock(mockBaseUrl)
       .get(/\/2\/footprints\?\$filter=/)
       .reply(200, mockFootprints);
-
-    // Add catch-all mocks for any other requests
-    persistentNock(mockBaseUrl).get(/.*/).optionally().reply(200, {});
-
-    persistentNock(mockBaseUrl)
-      .post(/.*/)
-      .optionally()
-      .reply(200, { success: true });
 
     // Mock the test cases in runTestCases
     const event = createEvent({
@@ -284,8 +226,5 @@ describe("runTestCases Lambda handler with nock", () => {
         (r: TestResult) => r.success === false && r.mandatory
       )
     ).toHaveProperty("testKey", "TESTCASE#13");
-
-    // Instead of checking the status code, we verify some mocks were actually called
-    expect(nock.isDone()).toBe(false); // Some mocks won't be called, so isDone() is expected to be false
   });
 });
