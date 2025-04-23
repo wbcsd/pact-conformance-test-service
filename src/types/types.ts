@@ -31,7 +31,6 @@ export interface TestCase {
   headers?: Record<string, string>;
   customUrl?: string;
   mandatoryVersion?: ApiVersion[];
-  ensureHttps: boolean;
   testKey: string;
 }
 export interface TestResult {

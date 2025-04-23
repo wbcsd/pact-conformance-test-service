@@ -23,7 +23,9 @@ interface TestResult {
 
 describe("runTestCases Lambda handler with nock", () => {
   const mockBaseUrl = "https://api.example.com";
+  const mockHttpBaseUrl = "http://api.example.com";
   const mockAuthBaseUrl = "https://auth.example.com";
+  const mockHttpAuthBaseUrl = "http://auth.example.com";
   const mockTokenEndpoint = "/auth/token";
   const mockClientId = "test-client-id";
   const mockClientSecret = "test-client-secret";
@@ -196,6 +198,23 @@ describe("runTestCases Lambda handler with nock", () => {
       .get(/\/2\/footprints\?\$filter=/)
       .reply(200, mockFootprints);
 
+    // Non https mocks
+    persistentNock(mockHttpBaseUrl)
+      .get("/2/footprints")
+      .reply(403, { code: "AccessDenied" });
+
+    persistentNock(mockHttpBaseUrl)
+      .get("/2/footprints/123e4567-e89b-12d3-a456-426614174000")
+      .reply(403, { code: "AccessDenied" });
+
+    persistentNock(mockHttpBaseUrl)
+      .post("/2/events")
+      .reply(403, { code: "AccessDenied" });
+
+    persistentNock(mockHttpAuthBaseUrl)
+      .post("/auth/token")
+      .reply(403, { code: "AccessDenied" });
+
     // Mock the test cases in runTestCases
     const event = createEvent({
       baseUrl: mockBaseUrl,
@@ -226,5 +245,8 @@ describe("runTestCases Lambda handler with nock", () => {
         (r: TestResult) => r.success === false && r.mandatory
       )
     ).toHaveProperty("testKey", "TESTCASE#13");
+
+    // All mocks should have been called
+    expect(nock.isDone()).toBe(true);
   });
 });

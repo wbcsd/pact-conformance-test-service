@@ -139,7 +139,6 @@ export const handler = async (
         expectedStatusCodes: [200],
         headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
-        ensureHttps: false,
         testKey: "TESTCASE#1",
       },
       {
@@ -150,7 +149,6 @@ export const handler = async (
         expectedStatusCodes: [400, 401],
         headers: getIncorrectAuthHeaders(baseUrl),
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
-        ensureHttps: false,
         testKey: "TESTCASE#2",
       },
       {
@@ -164,7 +162,6 @@ export const handler = async (
         },
         conditionErrorMessage: `Returned footprint does not match the requested footprint with id ${footprints.data[0].id}`,
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
-        ensureHttps: false,
         testKey: "TESTCASE#3",
       },
       {
@@ -178,7 +175,6 @@ export const handler = async (
         },
         conditionErrorMessage: "Number of footprints does not match",
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
-        ensureHttps: false,
         testKey: "TESTCASE#4",
       },
       {
@@ -188,7 +184,6 @@ export const handler = async (
         expectedStatusCodes: [200],
         schema: simpleResponseSchema,
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
-        ensureHttps: false,
         testKey: "TESTCASE#5",
       },
       {
@@ -204,7 +199,6 @@ export const handler = async (
           Authorization: `Bearer very-invalid-access-token-${randomString(16)}`,
         },
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
-        ensureHttps: false,
         testKey: "TESTCASE#6",
       },
       {
@@ -220,7 +214,6 @@ export const handler = async (
           Authorization: `Bearer very-invalid-access-token-${randomString(16)}`,
         },
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
-        ensureHttps: false,
         testKey: "TESTCASE#7",
       },
       {
@@ -233,46 +226,36 @@ export const handler = async (
         },
         conditionErrorMessage: `Expected error code NoSuchFootprint in response.`,
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
-        ensureHttps: false,
         testKey: "TESTCASE#8",
       },
       {
         name: "Test Case 9: Attempt Authentication through HTTP (non-HTTPS)",
-        customUrl: oidAuthUrl || `${authBaseUrl}/auth/token`,
+        customUrl:
+          oidAuthUrl?.replace("https", "http") ||
+          `${authBaseUrl.replace("https", "http")}/auth/token`,
         method: "POST",
-        expectedStatusCodes: [200],
+        expectedStatusCodes: [400, 403],
         headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
-        ensureHttps: true,
         testKey: "TESTCASE#9",
         requestData: "grant_type=client_credentials",
       },
       {
         name: "Test Case 10: Attempt ListFootprints through HTTP (non-HTTPS)",
         method: "GET",
-        endpoint: "/2/footprints",
-        expectedStatusCodes: [200],
-        schema: simpleResponseSchema,
-        condition: ({ data }) => {
-          return data.length === footprints.data.length;
-        },
-        conditionErrorMessage: "Number of footprints does not match",
+        customUrl: `${baseUrl.replace("https", "http")}/2/footprints`,
+        expectedStatusCodes: [400, 403],
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
-        ensureHttps: true,
         testKey: "TESTCASE#10",
       },
       {
         name: "Test Case 11: Attempt GetFootprint through HTTP (non-HTTPS)",
         method: "GET",
-        endpoint: `/2/footprints/${footprints.data[0].id}`,
-        expectedStatusCodes: [200],
-        schema: simpleSingleFootprintResponseSchema,
-        condition: ({ data }) => {
-          return data.id === footprints.data[0].id;
-        },
-        conditionErrorMessage: `Returned footprint does not match the requested footprint with id ${footprints.data[0].id}`,
+        customUrl: `${baseUrl.replace("https", "http")}/2/footprints/${
+          footprints.data[0].id
+        }`,
+        expectedStatusCodes: [400, 403],
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
-        ensureHttps: true,
         testKey: "TESTCASE#11",
       },
       {
@@ -299,7 +282,6 @@ export const handler = async (
           },
         },
         mandatoryVersion: ["V2.2", "V2.3"],
-        ensureHttps: false,
         testKey: "TESTCASE#12",
       },
       // Test Case 13 is about receiving the PCF data from the webhook endpoint as a data recipient, this request will be triggered by the previous test.
@@ -329,14 +311,13 @@ export const handler = async (
           return code === "BadRequest";
         },
         mandatoryVersion: ["V2.2", "V2.3"],
-        ensureHttps: false,
         testKey: "TESTCASE#14",
       },
       {
         name: "Test Case 15: Attempt Action Events through HTTP (non-HTTPS)",
         method: "POST",
-        endpoint: `/2/events`,
-        expectedStatusCodes: [200],
+        customUrl: `${baseUrl.replace("https", "http")}/2/events`,
+        expectedStatusCodes: [400, 403],
         requestData: {
           specversion: "1.0",
           id: randomUUID(),
@@ -356,7 +337,6 @@ export const handler = async (
           "Content-Type": "application/cloudevents+json; charset=UTF-8",
         },
         mandatoryVersion: ["V2.2", "V2.3"],
-        ensureHttps: true,
         testKey: "TESTCASE#15",
       },
       {
@@ -378,7 +358,6 @@ export const handler = async (
           "Content-Type": "application/cloudevents+json; charset=UTF-8",
         },
         mandatoryVersion: ["V2.2", "V2.3"],
-        ensureHttps: false,
         testKey: "TESTCASE#16",
       },
       {
@@ -387,7 +366,6 @@ export const handler = async (
         customUrl: oidAuthUrl,
         expectedStatusCodes: [200],
         headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
-        ensureHttps: false,
         testKey: "TESTCASE#17",
         requestData: "grant_type=client_credentials",
       },
@@ -397,7 +375,6 @@ export const handler = async (
         customUrl: oidAuthUrl,
         expectedStatusCodes: [400, 401],
         headers: getIncorrectAuthHeaders(baseUrl),
-        ensureHttps: false,
         testKey: "TESTCASE#18",
         requestData: "grant_type=client_credentials",
       },
@@ -416,7 +393,6 @@ export const handler = async (
           );
         },
         conditionErrorMessage: `One or more footprints do not match the condition: 'created date >= ${footprints.data[0].created}'`,
-        ensureHttps: false,
         testKey: "TESTCASE#19",
       },
     ];

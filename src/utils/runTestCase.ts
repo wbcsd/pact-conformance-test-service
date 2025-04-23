@@ -57,37 +57,6 @@ export const runTestCase = async (
 
   const url = testCase.customUrl || `${baseUrl}${testCase.endpoint}`;
 
-  // TODO: the case is about refusing the request, tighten the implementation later
-  // ... just replace https with http in the request and expect an error code
-  if (testCase.ensureHttps && !url.startsWith("https://")) {
-    const httpUrl = url.replace(/^https?:\/\//, "http://");
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-      ...(testCase.headers || {}),
-    };
-
-    const body = testCase.requestData
-      ? JSON.stringify(testCase.requestData)
-      : undefined;
-    const curlCmd = generateCurlCommand(
-      httpUrl,
-      testCase.method,
-      headers,
-      body
-    );
-
-    return {
-      name: testCase.name,
-      status: "FAILURE",
-      success: false,
-      errorMessage: `HTTPS is required for this endpoint, but the URL is ${url}`,
-      mandatory: isMandatoryVersion(testCase, version),
-      testKey: testCase.testKey,
-      curlRequest: curlCmd,
-    };
-  }
-
   const options: RequestInit = {
     method: testCase.method,
     headers: {
