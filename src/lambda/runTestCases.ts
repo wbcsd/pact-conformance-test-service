@@ -43,7 +43,7 @@ export const handler = async (
     companyName,
     companyIdentifier,
     adminEmail,
-    adminFullName,
+    adminName,
     customAuthBaseUrl,
   }: {
     baseUrl: string;
@@ -53,7 +53,7 @@ export const handler = async (
     companyName: string;
     companyIdentifier: string;
     adminEmail: string;
-    adminFullName: string;
+    adminName: string;
     customAuthBaseUrl?: string;
   } = JSON.parse(event.body || "{}");
 
@@ -65,7 +65,7 @@ export const handler = async (
     !companyName ||
     !companyIdentifier ||
     !adminEmail ||
-    !adminFullName
+    !adminName
   ) {
     console.error("Missing required parameters");
     return {
@@ -84,7 +84,7 @@ export const handler = async (
       companyName,
       companyIdentifier,
       adminEmail,
-      adminFullName,
+      adminName,
       techSpecVersion: version,
     });
 

@@ -205,7 +205,7 @@ describe("runTestCases Lambda handler with nock", () => {
       companyName: "Test Company",
       companyIdentifier: "test-company",
       adminEmail: "admin@test.com",
-      adminFullName: "Admin Test",
+      adminName: "Admin Test",
       customAuthBaseUrl: mockAuthBaseUrl,
     });
 

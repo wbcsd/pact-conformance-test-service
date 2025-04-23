@@ -98,7 +98,7 @@ describe("runTestCases Lambda handler", () => {
       companyName: "Test Company",
       companyIdentifier: "test-company",
       adminEmail: "admin@test.com",
-      adminFullName: "Admin Test",
+      adminName: "Admin Test",
     });
 
     // Act
@@ -117,7 +117,7 @@ describe("runTestCases Lambda handler", () => {
       companyName: "Test Company",
       companyIdentifier: "test-company",
       adminEmail: "admin@test.com",
-      adminFullName: "Admin Test",
+      adminName: "Admin Test",
       techSpecVersion: "V2.2",
     });
 
@@ -148,7 +148,7 @@ describe("runTestCases Lambda handler", () => {
       companyName: "Test Company",
       companyIdentifier: "test-company",
       adminEmail: "admin@test.com",
-      adminFullName: "Admin Test",
+      adminName: "Admin Test",
     });
 
     // Mock test case #4 to fail
@@ -201,7 +201,7 @@ describe("runTestCases Lambda handler", () => {
       companyName: "Test Company",
       companyIdentifier: "test-company",
       adminEmail: "admin@test.com",
-      adminFullName: "Admin Test",
+      adminName: "Admin Test",
     });
 
     // Mock getAccessToken to throw an error
@@ -229,7 +229,7 @@ describe("runTestCases Lambda handler", () => {
       companyName: "Test Company",
       companyIdentifier: "test-company",
       adminEmail: "admin@test.com",
-      adminFullName: "Admin Test",
+      adminName: "Admin Test",
     });
 
     // Mock runTestCase to make some tests mandatory and some optional

@@ -13,7 +13,7 @@ interface TestRunDetails {
   companyName: string;
   companyIdentifier: string;
   adminEmail: string;
-  adminFullName: string;
+  adminName: string;
   techSpecVersion: string;
 }
 
@@ -22,7 +22,7 @@ export const saveTestRun = async ({
   companyName,
   companyIdentifier,
   adminEmail,
-  adminFullName,
+  adminName,
   techSpecVersion,
 }: TestRunDetails): Promise<void> => {
   const tableName = process.env.DYNAMODB_TABLE_NAME;
@@ -42,7 +42,7 @@ export const saveTestRun = async ({
       companyName,
       companyIdentifier,
       adminEmail,
-      adminFullName,
+      adminName,
       techSpecVersion,
     },
   };
