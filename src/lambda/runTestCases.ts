@@ -127,9 +127,6 @@ export const handler = async (
       }
     })();
 
-    // TODO when the test cases are optional, returning 400 not implemented is also an option. Confirm with the team
-    // TODO confirm if in the case of limit and filtering for < 2.3 the endpoint should return 400 or 200 without filtering and limit
-    // TODO Add support for https
     const testCases: TestCase[] = [
       {
         name: "Test Case 1: Obtain auth token with valid credentials",
@@ -180,7 +177,7 @@ export const handler = async (
       {
         name: "Test Case 5: Pagination link implementation of Action ListFootprints",
         method: "GET",
-        endpoint: Object.values(paginationLinks)[0]?.replace(baseUrl, ""), // TODO add skip support to tests in case no pagination links are present
+        endpoint: Object.values(paginationLinks)[0]?.replace(baseUrl, ""),
         expectedStatusCodes: [200],
         schema: simpleResponseSchema,
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
@@ -348,7 +345,9 @@ export const handler = async (
           type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
           specversion: "1.0",
           id: randomUUID(),
-          source: `${WEBHOOK_URL}?testRunId=foo&testCaseName=bar`, // TODO send correct test ID and test case name
+          source: `${WEBHOOK_URL}?testRunId=${testRunId}&testCaseName=${encodeURIComponent(
+            "TESTCASE#16"
+          )}`,
           time: new Date().toISOString(),
           data: {
             pfIds: ["urn:gtin:4712345060507"],

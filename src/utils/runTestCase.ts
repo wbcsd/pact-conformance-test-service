@@ -60,7 +60,7 @@ export const runTestCase = async (
   const options: RequestInit = {
     method: testCase.method,
     headers: {
-      "Content-Type": "application/json", // TODO confirm this header in the spec
+      "Content-Type": "application/json",
       Authorization: `Bearer ${accessToken}`,
     },
   };
