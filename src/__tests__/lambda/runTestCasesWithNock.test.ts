@@ -191,7 +191,7 @@ describe("runTestCases Lambda handler with nock", () => {
       .reply(404, { code: "NoSuchFootprint", message: "Footprint not found" });
 
     // Mock for Test Case 12 & 16: Events
-    persistentNock(mockBaseUrl).post("/2/events").reply(200, { success: true });
+    persistentNock(mockBaseUrl).post("/2/events").reply(200);
 
     // Mock for Test Case 19: Filtered list
     persistentNock(mockBaseUrl)

@@ -101,8 +101,10 @@ export const runTestCase = async (
       };
     }
 
-    // Parse the response as JSON.
-    const responseData = await response.json();
+    const rawResponse = await response.text();
+
+    let responseData;
+    responseData = rawResponse.length > 0 ? JSON.parse(rawResponse) : "";
 
     console.log(`Test response data from ${url}`, responseData);
 
