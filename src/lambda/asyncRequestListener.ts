@@ -16,9 +16,6 @@ const ajv = new Ajv({ allErrors: true });
 addFormats(ajv);
 const validateEvent = ajv.compile(eventFulfilledSchema);
 
-// Constants
-const EVENT_TYPE_FULFILLED =
-  "org.wbcsd.pathfinder.ProductFootprintRequest.Fulfilled.v1";
 const TEST_CASE_13_NAME = "Test Case 13: Respond to Asynchronous PCF Request";
 const MANDATORY_VERSIONS = ["V2.2", "V2.3"];
 
@@ -99,24 +96,22 @@ export const handler = async (
       console.log("No request body received or testRunId is missing");
     }
 
-    // Return a 200 success response with empty body
     return {
       statusCode: 200,
       headers: {
-        "Content-Type": "application/json",
+        "Content-Length": 0,
       },
-      body: JSON.stringify({}),
+      body: "",
     };
   } catch (error) {
     console.error("Error processing request:", error);
 
-    // Even on error, return 200 as per requirements
     return {
       statusCode: 200,
       headers: {
-        "Content-Type": "application/json",
+        "Content-Length": 0,
       },
-      body: JSON.stringify({}),
+      body: "",
     };
   }
 };
