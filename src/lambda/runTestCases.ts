@@ -382,7 +382,7 @@ export const handler = async (
         name: "Test Case 19: Get Filtered List of Footprints",
         method: "GET",
         endpoint: `/2/footprints?$filter=${encodeURIComponent(
-          `created ge ${footprints.data[0].created}`
+          `created ge '${footprints.data[0].created}'`
         )}`,
         expectedStatusCodes: [200],
         schema: simpleResponseSchema,
