@@ -34,7 +34,7 @@ describe("runTestCases Lambda handler", () => {
     ],
   };
   const mockPaginationLinks = {
-    next: "https://api.example.com/2/footprints?page=2",
+    next: "https://api.example.com/2/footprints?offset=2&limit=1",
   };
 
   // Prepare the APIGatewayProxyEvent mock

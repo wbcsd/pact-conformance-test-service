@@ -177,12 +177,12 @@ describe("runTestCases Lambda handler with nock", () => {
     persistentNock(mockBaseUrl)
       .get("/2/footprints?limit=1")
       .reply(200, mockFootprints, {
-        Link: `<${mockBaseUrl}/2/footprints?page=2&limit=1>; rel="next"`,
+        Link: `<${mockBaseUrl}/2/footprints?offset=2&limit=1>; rel="next"`,
       });
 
     // Mock for Test Case 5: Pagination
     persistentNock(mockBaseUrl)
-      .get("/2/footprints?page=2&limit=1")
+      .get("/2/footprints?offset=2&limit=1")
       .reply(200, mockFootprints);
 
     // Mock for Test Case 8: Non-existent footprint
