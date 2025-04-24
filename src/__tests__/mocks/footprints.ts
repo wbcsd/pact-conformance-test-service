@@ -1,11 +1,10 @@
-// Sample footprint data that matches the structure expected in the code
 export const mockFootprints = {
   data: [
     {
       id: "123e4567-e89b-12d3-a456-426614174000",
       specVersion: "2.0.0",
-      version: 1, // Changed to integer
-      status: "Active", // Changed to match the enum
+      version: 1,
+      status: "Active",
       comment: "This is a test footprint",
       companyName: "Test Company",
       companyIds: ["urn:example:company:test-company"],
@@ -17,17 +16,16 @@ export const mockFootprints = {
         declaredUnit: "kilogram",
         carbonFootprintTotalkg: 10.5,
         carbonFootprintBreakdown: {},
-        // Adding required fields for pcf with correct types
-        unitaryProductAmount: "1.0", // Changed to string
+        unitaryProductAmount: "1.0",
         referencePeriodStart: "2025-01-01T00:00:00Z",
         referencePeriodEnd: "2025-12-31T23:59:59Z",
-        pCfExcludingBiogenic: "10.5", // Changed to string
-        fossilGhgEmissions: "10.0", // Changed to string
-        fossilCarbonContent: "1.0", // Changed to string
-        biogenicCarbonContent: "0.5", // Changed to string
-        characterizationFactors: "AR5", // Changed to match enum
+        pCfExcludingBiogenic: "10.5",
+        fossilGhgEmissions: "10.0",
+        fossilCarbonContent: "1.0",
+        biogenicCarbonContent: "0.5",
+        characterizationFactors: "AR5",
         ipccCharacterizationFactorsSources: ["AR5"],
-        crossSectoralStandardsUsed: ["GHG Protocol Product standard"], // Updated to match enum
+        crossSectoralStandardsUsed: ["GHG Protocol Product standard"],
         boundaryProcessesDescription: "Test boundary processes",
         exemptedEmissionsPercent: 0,
         exemptedEmissionsDescription: "No exempted emissions",
