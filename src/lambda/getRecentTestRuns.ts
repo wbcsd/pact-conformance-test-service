@@ -82,6 +82,12 @@ export const handler = async (
         // Calculate status based on mandatory tests
         let status = TestRunStatus.PASS;
 
+        // If there are no test results, mark as FAIL as no tests were run
+        // a common reason is that we couldn't authenticate with the base api before running the tests
+        if (testResults.results.length === 0) {
+          status = TestRunStatus.FAIL;
+        }
+
         // If there are mandatory tests and any of them failed, mark as FAIL
         const mandatoryTests = testResults.results.filter(
           (result) => result.mandatory
