@@ -41,8 +41,8 @@ We acknowledge that during the use of ACT, and especially throughout the Alpha a
 * The above discrepancy resolution process may generate a scenario which we will call a “mandatory retesting scenario”, where solutions which previously passed ACT for a given version of the Tech Specs would no longer pass ACT for that same version.
 * The scenario requiring retesting is only expected in the "Beta Phase"; once ACT is in General Release for a given version of the PACT Technical Specifications, organizations will not be required to participate in retesting
 * Should a mandatory retesting scenario occur, we anticipate the following process:
-  * Should a new version of ACT be released which PACT deems requires existent solutions conformant to that version to retest, PACT will inform the Solution Provider they have 60 days to re-demonstrate conformance
-  * During this time the Solution Provider will remain promoted through PACT marketing channels as before (i.e. via PACT website, at events, etc.)
-  * Should the Solution Provider fail to re-demonstrate conformance by the deadline, PACT will inform the Solution Provider and remove their Conformance status and remove the solution from PACT marketing channels
+  * If PACT determines that a new version of ACT requires existing conformant solutions to undergo retesting, PACT will notify the Solution Provider, granting them 60 days to re-demonstrate conformance.
+  * During this time the Solution Provider will continue to be promoted through PACT marketing channels as before (i.e. via PACT website, at events, etc.)
+  * Should the Solution Provider fail to re-demonstrate conformance by the deadline, PACT will inform the Solution Provider, remove their Conformance status, and remove the solution from PACT marketing channels.
 * Solution Providers are regardless encouraged to periodically retest to later versions of ACT, even if not mandated    
  
