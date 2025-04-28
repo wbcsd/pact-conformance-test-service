@@ -1,15 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
-import { TestResult } from "../types/types";
+import { EventTypes, TestResult } from "../types/types";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { eventFulfilledSchema } from "../schemas/responseSchema";
 import { getTestData, saveTestCaseResult } from "../utils/dbUtils";
-
-// Initialize DynamoDB clients
-const dynamoClient = new DynamoDBClient({});
-const docClient = DynamoDBDocumentClient.from(dynamoClient);
 
 // Initialize Ajv validator
 const ajv = new Ajv({ allErrors: true });
@@ -26,21 +22,28 @@ export const handler = async (
     // Log the entire event for debugging
     console.log("Received event:", JSON.stringify(event, null, 2));
 
-    // Get the DynamoDB table name from environment variables
-    const tableName = process.env.DYNAMODB_TABLE_NAME;
-    if (!tableName) {
-      throw new Error("DYNAMODB_TABLE_NAME environment variable is not set");
-    }
-
     // Parse and log the request body
-    if (event.body && event.queryStringParameters?.testRunId) {
+    if (event.body) {
       const body = JSON.parse(event.body);
       console.log("Request body:", JSON.stringify(body, null, 2));
 
-      /* We only care about TESTCASE#12 for this part as Test Case 13 is basically a follow-up
+      /* We only care about the fulfilled event in response to TESTCASE#12 for this part as Test Case 13 is basically a follow-up
          that processes the call back from a host system in response to the event fired in test case 12 */
-      if (event.queryStringParameters?.testCaseName === "TESTCASE#12") {
+      if (body.type === EventTypes.FULFILLED) {
         const testData = await getTestData(body.data.requestEventId);
+
+        if (!testData) {
+          console.error(
+            `Test data not found for requestEventId: ${body.data.requestEventId}`
+          );
+          return {
+            statusCode: 400,
+            body: JSON.stringify({
+              code: "BadRequest",
+              message: "Bad Request",
+            }),
+          };
+        }
 
         const isMandatory = MANDATORY_VERSIONS.includes(testData.version);
 
@@ -86,14 +89,10 @@ export const handler = async (
           };
         }
 
-        await saveTestCaseResult(
-          event.queryStringParameters.testRunId,
-          testResult,
-          true
-        );
+        await saveTestCaseResult(body.data.requestEventId, testResult, true);
       }
     } else {
-      console.log("No request body received or testRunId is missing");
+      console.error("No request body received");
     }
 
     return {
@@ -107,11 +106,14 @@ export const handler = async (
     console.error("Error processing request:", error);
 
     return {
-      statusCode: 200,
+      statusCode: 400,
       headers: {
         "Content-Length": 0,
       },
-      body: "",
+      body: JSON.stringify({
+        code: "BadRequest",
+        message: "Bad Request",
+      }),
     };
   }
 };

@@ -291,7 +291,7 @@ export const handler = async (
         requestData: {
           type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
           specversion: "1.0",
-          id: randomUUID(),
+          id: testRunId,
           source: `${WEBHOOK_URL}?testRunId=${testRunId}&testCaseName=${encodeURIComponent(
             "TESTCASE#14"
           )}`,
@@ -317,7 +317,7 @@ export const handler = async (
         expectedStatusCodes: [400, 403],
         requestData: {
           specversion: "1.0",
-          id: randomUUID(),
+          id: testRunId,
           source: `${WEBHOOK_URL}?testRunId=${testRunId}&testCaseName=${encodeURIComponent(
             "TESTCASE#15"
           )}`,

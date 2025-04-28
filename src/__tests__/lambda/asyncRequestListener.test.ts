@@ -1,4 +1,3 @@
-// filepath: /home/jose/projects/wbcsd/pact-api-test-service/src/__tests__/lambda/asyncRequestListenerWithNock.test.ts
 import { handler } from "../../lambda/asyncRequestListener";
 import { APIGatewayProxyEvent } from "aws-lambda";
 
@@ -11,12 +10,9 @@ jest.mock("../../utils/dbUtils");
 // Mock environment variable
 process.env.DYNAMODB_TABLE_NAME = "test-table";
 
-describe("asyncRequestListener Lambda handler with nock", () => {
+describe("asyncRequestListener Lambda handler", () => {
   // Prepare the APIGatewayProxyEvent mock
-  const createEvent = (
-    body: any,
-    queryParams?: Record<string, string>
-  ): APIGatewayProxyEvent => {
+  const createEvent = (body: any): APIGatewayProxyEvent => {
     return {
       body: JSON.stringify(body),
       headers: {},
@@ -25,7 +21,7 @@ describe("asyncRequestListener Lambda handler with nock", () => {
       isBase64Encoded: false,
       path: "/async-listener",
       pathParameters: null,
-      queryStringParameters: queryParams || null,
+      queryStringParameters: null,
       multiValueQueryStringParameters: null,
       stageVariables: null,
       requestContext: {} as any,
@@ -69,11 +65,8 @@ describe("asyncRequestListener Lambda handler with nock", () => {
       },
     };
 
-    // Create the API Gateway event with query parameters
-    const event = createEvent(validEventBody, {
-      testRunId: "test-run-123",
-      testCaseName: "TESTCASE#12",
-    });
+    // Create the API Gateway event
+    const event = createEvent(validEventBody);
 
     // Call the handler
     const response = await handler(event);
@@ -86,7 +79,7 @@ describe("asyncRequestListener Lambda handler with nock", () => {
 
     // Verify that saveTestCaseResult was called with the successful test result
     expect(dbUtils.saveTestCaseResult).toHaveBeenCalledWith(
-      "test-run-123",
+      "request-123",
       expect.objectContaining({
         name: "Test Case 13: Respond to Asynchronous PCF Request",
         status: "SUCCESS",
@@ -153,11 +146,8 @@ describe("asyncRequestListener Lambda handler with nock", () => {
       },
     };
 
-    // Create the API Gateway event with query parameters
-    const event = createEvent(eventBody, {
-      testRunId: "test-run-123",
-      testCaseName: "TESTCASE#12",
-    });
+    // Create the API Gateway event
+    const event = createEvent(eventBody);
 
     // Call the handler
     const response = await handler(event);
@@ -167,7 +157,7 @@ describe("asyncRequestListener Lambda handler with nock", () => {
 
     // Verify that saveTestCaseResult was called with a failure result
     expect(dbUtils.saveTestCaseResult).toHaveBeenCalledWith(
-      "test-run-123",
+      "request-123",
       expect.objectContaining({
         name: "Test Case 13: Respond to Asynchronous PCF Request",
         status: "FAILURE",
@@ -209,11 +199,8 @@ describe("asyncRequestListener Lambda handler with nock", () => {
       },
     };
 
-    // Create the API Gateway event with query parameters
-    const event = createEvent(invalidEventBody, {
-      testRunId: "test-run-123",
-      testCaseName: "TESTCASE#12",
-    });
+    // Create the API Gateway event
+    const event = createEvent(invalidEventBody);
 
     // Call the handler
     const response = await handler(event);
@@ -223,7 +210,7 @@ describe("asyncRequestListener Lambda handler with nock", () => {
 
     // Verify that saveTestCaseResult was called with a failure result due to validation
     expect(dbUtils.saveTestCaseResult).toHaveBeenCalledWith(
-      "test-run-123",
+      "request-123",
       expect.objectContaining({
         name: "Test Case 13: Respond to Asynchronous PCF Request",
         status: "FAILURE",
@@ -271,7 +258,7 @@ describe("asyncRequestListener Lambda handler with nock", () => {
     expect(dbUtils.saveTestCaseResult).not.toHaveBeenCalled();
   });
 
-  test("should handle errors gracefully and return 200", async () => {
+  test("should handle errors gracefully and return 400", async () => {
     // Mock DB utility function to throw an error
     (dbUtils.getTestData as jest.Mock).mockRejectedValue(
       new Error("Database error")
@@ -298,25 +285,21 @@ describe("asyncRequestListener Lambda handler with nock", () => {
       },
     };
 
-    // Create the API Gateway event with query parameters
-    const event = createEvent(eventBody, {
-      testRunId: "test-run-123",
-      testCaseName: "TESTCASE#12",
-    });
+    // Create the API Gateway event
+    const event = createEvent(eventBody);
 
     // Call the handler
     const response = await handler(event);
 
-    // Verify response is still 200 even when an error occurs
-    expect(response.statusCode).toBe(200);
+    expect(response.statusCode).toBe(400);
   });
 
-  test("should do nothing when testCaseName is not TESTCASE#12", async () => {
+  test("should do nothing when the event type is not Fulfilled", async () => {
     // Valid event body
     const eventBody = {
       eventId: "event-id-1234",
       specversion: "1.0",
-      type: "org.wbcsd.pathfinder.ProductFootprintRequest.Fulfilled.v1",
+      type: "org.wbcsd.pathfinder.ProductFootprintRequest.Created.v1",
       source: "https://example.com",
       time: new Date().toISOString(),
       data: {
@@ -331,10 +314,7 @@ describe("asyncRequestListener Lambda handler with nock", () => {
     };
 
     // Create the API Gateway event with a different testCaseName
-    const event = createEvent(eventBody, {
-      testRunId: "test-run-123",
-      testCaseName: "TESTCASE#99", // Not TESTCASE#12
-    });
+    const event = createEvent(eventBody);
 
     // Call the handler
     const response = await handler(event);

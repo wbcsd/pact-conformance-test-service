@@ -1,4 +1,4 @@
-import { TestResult } from "../types/types";
+import { TestData, TestResult } from "../types/types";
 import * as AWS from "aws-sdk";
 
 const docClient = new AWS.DynamoDB.DocumentClient();
@@ -155,7 +155,7 @@ export const getTestResults = async (testRunId: string) => {
 
 export const saveTestData = async (
   testRunId: string,
-  testData: Record<string, unknown>
+  testData: TestData
 ): Promise<void> => {
   const tableName = process.env.DYNAMODB_TABLE_NAME;
 
@@ -184,7 +184,9 @@ export const saveTestData = async (
   }
 };
 
-export const getTestData = async (testRunId: string) => {
+export const getTestData = async (
+  testRunId: string
+): Promise<TestData | null> => {
   const tableName = process.env.DYNAMODB_TABLE_NAME;
 
   if (!tableName) {
@@ -202,7 +204,7 @@ export const getTestData = async (testRunId: string) => {
   const result = await docClient.get(params).promise();
 
   if (!result.Item) {
-    return {};
+    return null;
   }
 
   return result.Item.data;

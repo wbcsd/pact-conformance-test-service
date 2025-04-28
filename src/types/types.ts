@@ -44,4 +44,16 @@ export interface TestResult {
   curlRequest?: string;
 }
 
+export interface TestData {
+  productIds: string[];
+  version: string;
+}
+
+export enum EventTypes {
+  CREATED = "org.wbcsd.pathfinder.ProductFootprintRequest.Created.v1",
+  FULFILLED = "org.wbcsd.pathfinder.ProductFootprintRequest.Fulfilled.v1",
+  REJECTED = "org.wbcsd.pathfinder.ProductFootprintRequest.Rejected.v1",
+  PUBLISHED = "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
+}
+
 export type ApiVersion = "V2.0" | "V2.1" | "V2.2" | "V2.3";
