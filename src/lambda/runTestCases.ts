@@ -266,9 +266,7 @@ export const handler = async (
         requestData: {
           specversion: "1.0",
           id: testRunId,
-          source: `${WEBHOOK_URL}?testRunId=${testRunId}&testCaseName=${encodeURIComponent(
-            "TESTCASE#12"
-          )}`,
+          source: `${WEBHOOK_URL}`,
           time: new Date().toISOString(),
           type: "org.wbcsd.pathfinder.ProductFootprintRequest.Created.v1",
           data: {
@@ -292,9 +290,7 @@ export const handler = async (
           type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
           specversion: "1.0",
           id: testRunId,
-          source: `${WEBHOOK_URL}?testRunId=${testRunId}&testCaseName=${encodeURIComponent(
-            "TESTCASE#14"
-          )}`,
+          source: `${WEBHOOK_URL}`,
           time: new Date().toISOString(),
           data: {
             pfIds: ["urn:gtin:4712345060507"],
@@ -318,9 +314,7 @@ export const handler = async (
         requestData: {
           specversion: "1.0",
           id: testRunId,
-          source: `${WEBHOOK_URL}?testRunId=${testRunId}&testCaseName=${encodeURIComponent(
-            "TESTCASE#15"
-          )}`,
+          source: `${WEBHOOK_URL}`,
           time: new Date().toISOString(),
           type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
           data: {
@@ -345,9 +339,7 @@ export const handler = async (
           type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
           specversion: "1.0",
           id: randomUUID(),
-          source: `${WEBHOOK_URL}?testRunId=${testRunId}&testCaseName=${encodeURIComponent(
-            "TESTCASE#16"
-          )}`,
+          source: `${WEBHOOK_URL}`,
           time: new Date().toISOString(),
           data: {
             pfIds: ["urn:gtin:4712345060507"],
