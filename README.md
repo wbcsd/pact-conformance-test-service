@@ -15,7 +15,7 @@ We encourage anyone to use the tool! See [Testing Guide](docs/MVP_testing_guide.
 
 ### Acknowledgements
 This project would not have been possible without the generous time and contributions from the following:
-- [Takuro Okada](mailto:t2-okada@nri.co.jp), who built an open-source command-line automated conformance testing tool and released this to the PACT community in September 2024, and served as a foundation and inspiration for this project
+- [Takuro Okada](mailto:t2-okada@nri.co.jp), who built an open-source command-line automated conformance testing tool and released this to the PACT community in September 2024, which served as a foundation and inspiration for this project
 - [SINE Foundation](https://sine.foundation/), who proposed and built an early automated conformance testing tool, and advocated for the introduction of such a tool to the community
 - [Patrick J McGovern Foundation](https://www.mcgovern.org/) for generously supporting this work
 - The PACT community for active engagement and testing of the tool, and for providing feedback 
