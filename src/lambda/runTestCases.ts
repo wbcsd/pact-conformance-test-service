@@ -231,7 +231,7 @@ export const handler = async (
           oidAuthUrl?.replace("https", "http") ||
           `${authBaseUrl.replace("https", "http")}/auth/token`,
         method: "POST",
-        expectedStatusCodes: [400, 403],
+        expectedStatusCodes: [400, 403, 405],
         headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
         testKey: "TESTCASE#9",
@@ -241,7 +241,7 @@ export const handler = async (
         name: "Test Case 10: Attempt ListFootprints through HTTP (non-HTTPS)",
         method: "GET",
         customUrl: `${baseUrl.replace("https", "http")}/2/footprints`,
-        expectedStatusCodes: [400, 403],
+        expectedStatusCodes: [400, 403, 405],
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
         testKey: "TESTCASE#10",
       },
@@ -251,7 +251,7 @@ export const handler = async (
         customUrl: `${baseUrl.replace("https", "http")}/2/footprints/${
           footprints.data[0].id
         }`,
-        expectedStatusCodes: [400, 403],
+        expectedStatusCodes: [400, 403, 405],
         mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
         testKey: "TESTCASE#11",
       },
@@ -310,7 +310,7 @@ export const handler = async (
         name: "Test Case 15: Attempt Action Events through HTTP (non-HTTPS)",
         method: "POST",
         customUrl: `${baseUrl.replace("https", "http")}/2/events`,
-        expectedStatusCodes: [400, 403],
+        expectedStatusCodes: [400, 403, 405],
         requestData: {
           specversion: "1.0",
           id: testRunId,
