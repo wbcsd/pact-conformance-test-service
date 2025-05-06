@@ -7,20 +7,21 @@ PACT publishes  [Technical Specifications for PCF Data Exchange](https://docs.ca
 PACT began running a conformance testing process in May 2023, shortly after the publication of V2 of the PACT Technical Specifications. From May 2023 to February 2025, conformance was conducted through manual peer-to-peer testing, [learn more here](https://www.carbon-transparency.org/guides/guide-join-pact-network). PACT is now developing an Automated Conformance Testing Service, which will both facilitate testing and improve the rigor and reliability of PACT Conformance status.
 
 ### Timeline
-- Several organizations have proposed automated conformance testing since PACT's foundation, including [SINE Foundation](https://sine.foundation/) and [NRI](https://www.nri.com/en/index.html).
-- NRI [Takuro Okada](mailto:t2-okada@nri.co.jp) built an open-source command-line automated conformance testing tool and released this to the PACT community in September 2024, [see here](https://github.com/wbcsd/pact-api-testbed)
-- PACT began work on this project in January 2025
-- PACT is building an MVP version of the service, planned to be ready for testing March 2025
-- PACT plans to launch a Production version of the service in May 2025, following the launch of PACT Tech Specs V3, helping organizations conform to V3
+- PACT released an MVP version of the service in March 2025, which can now be used for testing
+- PACT will release a production version of the service in June 2025, which must be used to gain PACT Conformance status
 
-### What does ACT test?
-See the set of test cases [here](docs/ACT_Test_Cases.pdf)
+### Acknowledgements
+This project would not have been possible without the generous time and contributions from the following:
+- [Takuro Okada](mailto:t2-okada@nri.co.jp), who built an open-source command-line automated conformance testing tool and released this to the PACT community in September 2024, and served as a foundation and inspiration for this project
+- [SINE Foundation](https://sine.foundation/), who proposed and built an early automated conformance testing tool, and advocated for the introduction of such a tool to the community
+- [Patrick J McGovern Foundation](https://www.mcgovern.org/) for generously supporting this work
+- The PACT community for active engagement and testing of the tool, and for providing feedback 
 
-### How to test MVP
-See [Testing Guide](docs/MVP_testing_guide.md)
+### Questions, Feedback?
+Check out our FAQ and/or raise a GitHub [issue](https://github.com/wbcsd/pact-conformance-test-service/issues).
 
 ### How to get involved
-- We welcome any organization globally to get involved in this project. Write to Beth Hadley (hadley@wbcsd.org) to learn more.
+We welcome any organization globally to get involved in this project. Write to Beth Hadley (hadley@wbcsd.org) to learn more.
 
 ### License
 [MIT](https://opensource.org/license/mit)
