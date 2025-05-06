@@ -6,8 +6,11 @@ PACT publishes  [Technical Specifications for PCF Data Exchange](https://docs.ca
 ###  Context
 PACT began running a conformance testing process in May 2023, shortly after the publication of V2 of the PACT Technical Specifications. From May 2023 to February 2025, conformance was conducted through manual peer-to-peer testing, [learn more here](https://www.carbon-transparency.org/guides/guide-join-pact-network). PACT is now developing an Automated Conformance Testing Service, which will both facilitate testing and improve the rigor and reliability of PACT Conformance status.
 
+### Access the tool
+We encourage anyone to use the tool! See [Testing Guide](docs/MVP_testing_guide.md)
+
 ### Timeline
-- PACT released an MVP version of the service in March 2025, which can now be used for testing
+- PACT released an MVP version of the service in March 2025, which can now be used for testing. 
 - PACT will release a production version of the service in June 2025, which must be used to gain PACT Conformance status
 
 ### Acknowledgements
