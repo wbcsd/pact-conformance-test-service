@@ -45,6 +45,9 @@ export const handler = async (
     adminEmail,
     adminName,
     customAuthBaseUrl,
+    scope,
+    audience,
+    resource
   }: {
     baseUrl: string;
     clientId: string;
@@ -55,6 +58,9 @@ export const handler = async (
     adminEmail: string;
     adminName: string;
     customAuthBaseUrl?: string;
+    scope?: string;
+    audience?: string;
+    resource?: string;
   } = JSON.parse(event.body || "{}");
 
   if (
@@ -96,7 +102,10 @@ export const handler = async (
       authBaseUrl,
       clientId,
       clientSecret,
-      oidAuthUrl
+      oidAuthUrl,
+      scope,
+      audience,
+      resource
     );
 
     const footprints = await fetchFootprints(baseUrl, accessToken);
