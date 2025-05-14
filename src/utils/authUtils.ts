@@ -72,7 +72,7 @@ export const getAccessToken = async (
     ...(scope && { scope }),
     ...(audience && { audience }),
     ...(resource && { resource })
-  }.toString());
+  });
 
   const response = await fetch(url, {
     method: "POST",
