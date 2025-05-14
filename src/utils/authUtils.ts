@@ -81,7 +81,7 @@ export const getAccessToken = async (
       "Content-Type": "application/x-www-form-urlencoded",
       Authorization: `Basic ${encodedCredentials}`,
     },
-    body: body
+    body: body.toString()
   });
 
   if (!response.ok) {
