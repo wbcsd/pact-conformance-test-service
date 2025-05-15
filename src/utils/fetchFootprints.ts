@@ -1,5 +1,13 @@
-export const fetchFootprints = async (baseUrl: string, accessToken: string) => {
-  const footprintsUrl = `${baseUrl}/2/footprints`;
+import { ApiVersion } from "../types/types";
+
+export const fetchFootprints = async (
+  baseUrl: string,
+  accessToken: string,
+  version: ApiVersion
+) => {
+  const apiVersion = version.startsWith("V2") ? "2" : "3";
+
+  const footprintsUrl = `${baseUrl}/${apiVersion}/footprints`;
   const response = await fetch(footprintsUrl, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -34,9 +42,12 @@ export const fetchFootprints = async (baseUrl: string, accessToken: string) => {
 
 export const getLinksHeaderFromFootprints = async (
   baseUrl: string,
-  accessToken: string
+  accessToken: string,
+  version: ApiVersion
 ) => {
-  const response = await fetch(`${baseUrl}/2/footprints?limit=1`, {
+  const apiVersion = version.startsWith("V2") ? "2" : "3";
+
+  const response = await fetch(`${baseUrl}/${apiVersion}/footprints?limit=1`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },

@@ -296,30 +296,38 @@ export const v3_0_ResponseSchema = {
           description: "Percentage of emissions exempted.",
         },
         productOrSectorSpecificRules: {
-          type: "object",
-          required: ["operator", "ruleNames"],
-          properties: {
-            operator: {
-              type: "string",
-              enum: ["PEF", "EPD International", "Other"],
-              description:
-                "The operator of the product or sector specific rule that was followed.",
-            },
-            ruleNames: {
-              type: "array",
-              items: {
+          type: "array",
+          items: {
+            type: "object",
+            required: ["operator", "ruleNames"],
+            properties: {
+              operator: {
                 type: "string",
+                enum: ["PEF", "EPD International", "Other"],
+                description:
+                  "Selection of operator of PCR being used for the PCF calculation. If operator is not available in the given list, or if a sector specific guidance has been followed, please set 'Other' and include details under 'otherOperatorName'.",
               },
-              minItems: 1,
-              description:
-                "The list of rule names that were followed for the PCF calculation.",
-            },
-            otherOperatorName: {
-              type: "string",
-              description:
-                "The name of the operator if 'Other' is selected in the operator field.",
+              ruleNames: {
+                type: "array",
+                items: {
+                  type: "string",
+                  minLength: 1,
+                },
+                minItems: 1,
+                uniqueItems: true,
+                description:
+                  "Names of the product or sector specific rules being used for the PCF calculation.",
+              },
+              otherOperatorName: {
+                type: "string",
+                minLength: 1,
+                description:
+                  "If operator is Other, then this attribute must be populated with the name of the operator.",
+              },
             },
           },
+          minItems: 1,
+          uniqueItems: true,
           description:
             "The product-specific or sector-specific rules applied for calculating or allocating GHG emissions.",
         },

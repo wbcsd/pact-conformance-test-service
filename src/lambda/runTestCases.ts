@@ -87,11 +87,12 @@ export const handler = async (
       oidAuthUrl
     );
 
-    const footprints = await fetchFootprints(baseUrl, accessToken);
+    const footprints = await fetchFootprints(baseUrl, accessToken, version);
 
     const paginationLinks = await getLinksHeaderFromFootprints(
       baseUrl,
-      accessToken
+      accessToken,
+      version
     );
 
     saveTestData(testRunId, {
@@ -138,7 +139,7 @@ export const handler = async (
         name: "Test Case 13: Respond to Asynchronous PCF Request",
         status: "PENDING",
         success: false,
-        mandatory: version === "V2.3",
+        mandatory: version === "V2.3" || version === "V3.0",
         testKey: "TESTCASE#13",
       },
     ];
