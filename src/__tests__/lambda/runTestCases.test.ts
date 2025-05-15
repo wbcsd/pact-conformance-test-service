@@ -4,7 +4,7 @@ import * as fetchFootprints from "../../utils/fetchFootprints";
 import * as runTestCaseModule from "../../utils/runTestCase";
 import * as dbUtils from "../../utils/dbUtils";
 import { APIGatewayProxyEvent } from "aws-lambda";
-import nock from "nock";
+import { mockFootprintsV3 } from "../mocks/footprints";
 
 // Mock the environment variables
 process.env.WEBHOOK_URL = "https://webhook.test.url";
@@ -20,7 +20,7 @@ jest.mock("../../utils/fetchFootprints");
 jest.mock("../../utils/dbUtils");
 jest.mock("../../utils/runTestCase");
 
-describe("runTestCases Lambda handler", () => {
+describe("runTestCases Lambda handler general tests", () => {
   const mockAccessToken = "mock-access-token";
   const mockOidAuthUrl = "https://auth.example.com/token";
   const mockBaseUrl = "https://api.example.com";
@@ -59,7 +59,6 @@ describe("runTestCases Lambda handler", () => {
   beforeEach(() => {
     // Reset all mocks
     jest.clearAllMocks();
-    nock.cleanAll();
 
     // Mock the auth utils functions
     (authUtils.getOidAuthUrl as jest.Mock).mockResolvedValue(mockOidAuthUrl);
@@ -86,56 +85,6 @@ describe("runTestCases Lambda handler", () => {
     (dbUtils.saveTestRun as jest.Mock).mockResolvedValue(undefined);
     (dbUtils.saveTestData as jest.Mock).mockResolvedValue(undefined);
     (dbUtils.saveTestCaseResults as jest.Mock).mockResolvedValue(undefined);
-  });
-
-  test("should execute all test cases and return success when all tests pass", async () => {
-    // Arrange
-    const event = createEvent({
-      baseUrl: mockBaseUrl,
-      clientId: "client-id",
-      clientSecret: "client-secret",
-      version: "V2.2",
-      companyName: "Test Company",
-      companyIdentifier: "test-company",
-      adminEmail: "admin@test.com",
-      adminName: "Admin Test",
-    });
-
-    // Act
-    const result = await handler(event);
-
-    // Assert
-    expect(result.statusCode).toBe(200);
-    const body = JSON.parse(result.body);
-    expect(body.message).toBe("All tests passed successfully");
-    expect(body.passingPercentage).toBe(100);
-    expect(body.testRunId).toBe("test-uuid-1234");
-
-    // Verify that saveTestRun was called correctly
-    expect(dbUtils.saveTestRun).toHaveBeenCalledWith({
-      testRunId: "test-uuid-1234",
-      companyName: "Test Company",
-      companyIdentifier: "test-company",
-      adminEmail: "admin@test.com",
-      adminName: "Admin Test",
-      techSpecVersion: "V2.2",
-    });
-
-    // Verify that saveTestData was called correctly
-    expect(dbUtils.saveTestData).toHaveBeenCalledWith("test-uuid-1234", {
-      productIds: ["product-id-1", "product-id-2"],
-      version: "V2.2",
-    });
-
-    // Verify that runTestCase was called the correct number of times (once for each test case)
-    // There are 18 test cases defined in the handler, plus one placeholder for TESTCASE#13 which is skipped
-    expect(runTestCaseModule.runTestCase).toHaveBeenCalledTimes(18);
-
-    // Verify that saveTestCaseResults was called with the results
-    expect(dbUtils.saveTestCaseResults).toHaveBeenCalled();
-    const savedResults = (dbUtils.saveTestCaseResults as jest.Mock).mock
-      .calls[0][1];
-    expect(savedResults).toHaveLength(19); // 19 test cases + 1 placeholder for TESTCASE#13
   });
 
   test("should return 500 status when some tests fail", async () => {
@@ -310,5 +259,233 @@ describe("runTestCases Lambda handler", () => {
     expect(result.statusCode).toBe(400);
     const body = JSON.parse(result.body);
     expect(body.message).toBe("Missing required parameters");
+  });
+});
+
+describe("runTestCases Lambda handler V2 specific", () => {
+  const mockAccessToken = "mock-access-token";
+  const mockOidAuthUrl = "https://auth.example.com/token";
+  const mockBaseUrl = "https://api.example.com";
+  const mockFootprints = {
+    data: [
+      {
+        id: "footprint-id-1",
+        productIds: ["product-id-1", "product-id-2"],
+        created: "2025-01-01T00:00:00Z",
+      },
+    ],
+  };
+  const mockPaginationLinks = {
+    next: "https://api.example.com/2/footprints?offset=2&limit=1",
+  };
+
+  // Prepare the APIGatewayProxyEvent mock
+  const createEvent = (body: any): APIGatewayProxyEvent => {
+    return {
+      body: JSON.stringify(body),
+      headers: {},
+      multiValueHeaders: {},
+      httpMethod: "POST",
+      isBase64Encoded: false,
+      path: "/test",
+      pathParameters: null,
+      queryStringParameters: null,
+      multiValueQueryStringParameters: null,
+      stageVariables: null,
+      requestContext: {} as any,
+      resource: "",
+    };
+  };
+
+  // Setup before each test
+  beforeEach(() => {
+    // Reset all mocks
+    jest.clearAllMocks();
+
+    // Mock the auth utils functions
+    (authUtils.getOidAuthUrl as jest.Mock).mockResolvedValue(mockOidAuthUrl);
+    (authUtils.getAccessToken as jest.Mock).mockResolvedValue(mockAccessToken);
+
+    // Mock the fetchFootprints functions
+    (fetchFootprints.fetchFootprints as jest.Mock).mockResolvedValue(
+      mockFootprints
+    );
+    (
+      fetchFootprints.getLinksHeaderFromFootprints as jest.Mock
+    ).mockResolvedValue(mockPaginationLinks);
+
+    // Mock the test case runner to return success by default
+    (runTestCaseModule.runTestCase as jest.Mock).mockResolvedValue({
+      name: "Test Case",
+      status: "SUCCESS",
+      success: true,
+      mandatory: true,
+      testKey: "TESTCASE#1",
+    });
+
+    // Mock the DB utils
+    (dbUtils.saveTestRun as jest.Mock).mockResolvedValue(undefined);
+    (dbUtils.saveTestData as jest.Mock).mockResolvedValue(undefined);
+    (dbUtils.saveTestCaseResults as jest.Mock).mockResolvedValue(undefined);
+  });
+
+  test("should execute all test cases and return success when all tests pass", async () => {
+    // Arrange
+    const event = createEvent({
+      baseUrl: mockBaseUrl,
+      clientId: "client-id",
+      clientSecret: "client-secret",
+      version: "V2.2",
+      companyName: "Test Company",
+      companyIdentifier: "test-company",
+      adminEmail: "admin@test.com",
+      adminName: "Admin Test",
+    });
+
+    // Act
+    const result = await handler(event);
+
+    // Assert
+    expect(result.statusCode).toBe(200);
+    const body = JSON.parse(result.body);
+    expect(body.message).toBe("All tests passed successfully");
+    expect(body.passingPercentage).toBe(100);
+    expect(body.testRunId).toBe("test-uuid-1234");
+
+    // Verify that saveTestRun was called correctly
+    expect(dbUtils.saveTestRun).toHaveBeenCalledWith({
+      testRunId: "test-uuid-1234",
+      companyName: "Test Company",
+      companyIdentifier: "test-company",
+      adminEmail: "admin@test.com",
+      adminName: "Admin Test",
+      techSpecVersion: "V2.2",
+    });
+
+    // Verify that saveTestData was called correctly
+    expect(dbUtils.saveTestData).toHaveBeenCalledWith("test-uuid-1234", {
+      productIds: ["product-id-1", "product-id-2"],
+      version: "V2.2",
+    });
+
+    // Verify that runTestCase was called the correct number of times (once for each test case)
+    // There are 18 test cases defined in the handler, plus one placeholder for TESTCASE#13 which is skipped
+    expect(runTestCaseModule.runTestCase).toHaveBeenCalledTimes(18);
+
+    // Verify that saveTestCaseResults was called with the results
+    expect(dbUtils.saveTestCaseResults).toHaveBeenCalled();
+    const savedResults = (dbUtils.saveTestCaseResults as jest.Mock).mock
+      .calls[0][1];
+    expect(savedResults).toHaveLength(19); // 19 test cases + 1 placeholder for TESTCASE#13
+  });
+});
+
+describe("runTestCases Lambda handler V3 specific", () => {
+  const mockAccessToken = "mock-access-token";
+  const mockOidAuthUrl = "https://auth.example.com/token";
+  const mockBaseUrl = "https://api.example.com";
+  const mockFootprints = mockFootprintsV3;
+  const mockPaginationLinks = {
+    next: "https://api.example.com/3/footprints?offset=2&limit=1",
+  };
+
+  // Prepare the APIGatewayProxyEvent mock
+  const createEvent = (body: any): APIGatewayProxyEvent => {
+    return {
+      body: JSON.stringify(body),
+      headers: {},
+      multiValueHeaders: {},
+      httpMethod: "POST",
+      isBase64Encoded: false,
+      path: "/test",
+      pathParameters: null,
+      queryStringParameters: null,
+      multiValueQueryStringParameters: null,
+      stageVariables: null,
+      requestContext: {} as any,
+      resource: "",
+    };
+  };
+
+  // Setup before each test
+  beforeEach(() => {
+    // Reset all mocks
+    jest.clearAllMocks();
+
+    // Mock the auth utils functions
+    (authUtils.getOidAuthUrl as jest.Mock).mockResolvedValue(mockOidAuthUrl);
+    (authUtils.getAccessToken as jest.Mock).mockResolvedValue(mockAccessToken);
+
+    // Mock the fetchFootprints functions
+    (fetchFootprints.fetchFootprints as jest.Mock).mockResolvedValue(
+      mockFootprints
+    );
+    (
+      fetchFootprints.getLinksHeaderFromFootprints as jest.Mock
+    ).mockResolvedValue(mockPaginationLinks);
+
+    // Mock the test case runner to return success by default
+    (runTestCaseModule.runTestCase as jest.Mock).mockResolvedValue({
+      name: "Test Case",
+      status: "SUCCESS",
+      success: true,
+      mandatory: true,
+      testKey: "TESTCASE#1",
+    });
+
+    // Mock the DB utils
+    (dbUtils.saveTestRun as jest.Mock).mockResolvedValue(undefined);
+    (dbUtils.saveTestData as jest.Mock).mockResolvedValue(undefined);
+    (dbUtils.saveTestCaseResults as jest.Mock).mockResolvedValue(undefined);
+  });
+
+  test("should execute all test cases and return success when all tests pass", async () => {
+    // Arrange
+    const event = createEvent({
+      baseUrl: mockBaseUrl,
+      clientId: "client-id",
+      clientSecret: "client-secret",
+      version: "V3.0",
+      companyName: "Test Company",
+      companyIdentifier: "test-company",
+      adminEmail: "admin@test.com",
+      adminName: "Admin Test",
+    });
+
+    // Act
+    const result = await handler(event);
+
+    // Assert
+    expect(result.statusCode).toBe(200);
+    const body = JSON.parse(result.body);
+    expect(body.message).toBe("All tests passed successfully");
+    expect(body.passingPercentage).toBe(100);
+    expect(body.testRunId).toBe("test-uuid-1234");
+
+    // Verify that saveTestRun was called correctly
+    expect(dbUtils.saveTestRun).toHaveBeenCalledWith({
+      testRunId: "test-uuid-1234",
+      companyName: "Test Company",
+      companyIdentifier: "test-company",
+      adminEmail: "admin@test.com",
+      adminName: "Admin Test",
+      techSpecVersion: "V3.0",
+    });
+
+    // Verify that saveTestData was called correctly
+    expect(dbUtils.saveTestData).toHaveBeenCalledWith("test-uuid-1234", {
+      productIds: mockFootprints.data[0].productIds,
+      version: "V3.0",
+    });
+
+    // Verify that runTestCase was called the correct number of times (once for each test case)
+    // There are 26 test cases defined in the handler, plus one placeholder for TESTCASE#13 which is skipped
+    expect(runTestCaseModule.runTestCase).toHaveBeenCalledTimes(26);
+
+    // Verify that saveTestCaseResults was called with the results
+    expect(dbUtils.saveTestCaseResults).toHaveBeenCalled();
+    const savedResults = (dbUtils.saveTestCaseResults as jest.Mock).mock
+      .calls[0][1];
+    expect(savedResults).toHaveLength(27); // 26 test cases + 1 placeholder for TESTCASE#13
   });
 });

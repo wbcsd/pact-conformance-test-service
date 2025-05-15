@@ -336,6 +336,24 @@ export const v3_0_ResponseSchema = {
             "(Only for Credit Approach) a URL to documentation verifying the certification from an external bookkeeping scheme.",
         },
       },
+      oneOf: [
+        {
+          oneOf: [
+            { required: ["geographyRegionOrSubregion"] },
+            { required: ["geographyCountry"] },
+            { required: ["geographyCountrySubdivision"] },
+          ],
+        },
+        {
+          not: {
+            anyOf: [
+              { required: ["geographyRegionOrSubregion"] },
+              { required: ["geographyCountry"] },
+              { required: ["geographyCountrySubdivision"] },
+            ],
+          },
+        },
+      ],
     },
     DataModelExtension: {
       type: "object",

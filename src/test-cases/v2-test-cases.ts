@@ -9,6 +9,10 @@ import {
   simpleResponseSchema,
   simpleSingleFootprintResponseSchema,
 } from "../schemas/responseSchema";
+import {
+  getCorrectAuthHeaders,
+  getIncorrectAuthHeaders,
+} from "../utils/authUtils";
 
 export const generateV2TestCases = ({
   testRunId,
@@ -310,9 +314,3 @@ export const generateV2TestCases = ({
     },
   ];
 };
-
-// Import the auth header functions directly from authUtils
-import {
-  getCorrectAuthHeaders,
-  getIncorrectAuthHeaders,
-} from "../utils/authUtils";

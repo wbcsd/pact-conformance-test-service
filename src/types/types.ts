@@ -56,4 +56,4 @@ export enum EventTypes {
   PUBLISHED = "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
 }
 
-export type ApiVersion = "V2.0" | "V2.1" | "V2.2" | "V2.3";
+export type ApiVersion = "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V3.0";

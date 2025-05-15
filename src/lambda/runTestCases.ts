@@ -13,6 +13,7 @@ import {
   saveTestData,
   saveTestRun,
 } from "../utils/dbUtils";
+import { generateV3TestCases } from "../test-cases/v3-test-cases";
 
 const WEBHOOK_URL = process.env.WEBHOOK_URL || "";
 
@@ -98,7 +99,7 @@ export const handler = async (
       version,
     });
 
-    const testCases = generateV2TestCases({
+    const testRunParams = {
       testRunId,
       footprints,
       paginationLinks,
@@ -109,7 +110,11 @@ export const handler = async (
       clientSecret,
       version,
       webhookUrl: WEBHOOK_URL,
-    });
+    };
+
+    const testCases = version.startsWith("V2")
+      ? generateV2TestCases(testRunParams)
+      : generateV3TestCases(testRunParams);
 
     const results: TestResult[] = [];
 
