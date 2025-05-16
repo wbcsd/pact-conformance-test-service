@@ -56,4 +56,11 @@ export enum EventTypes {
   PUBLISHED = "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
 }
 
+export enum EventTypesV3 {
+  CREATED = "org.wbcsd.pact.ProductFootprint.RequestCreatedEvent.3",
+  FULFILLED = "org.wbcsd.pact.ProductFootprint.RequestFulfilledEvent.3",
+  REJECTED = "org.wbcsd.pact.ProductFootprint.RequestRejectedEvent.3",
+  PUBLISHED = "org.wbcsd.pact.ProductFootprint.PublishedEvent.3",
+}
+
 export type ApiVersion = "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V3.0";

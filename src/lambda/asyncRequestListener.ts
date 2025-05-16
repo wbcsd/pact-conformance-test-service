@@ -1,19 +1,19 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
-import { EventTypes, TestResult } from "../types/types";
+import { EventTypes, EventTypesV3, TestResult } from "../types/types";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { eventFulfilledSchema } from "../schemas/responseSchema";
+import {
+  eventFulfilledSchema,
+  v3_0_EventFulfilledSchema,
+} from "../schemas/responseSchema";
 import { getTestData, saveTestCaseResult } from "../utils/dbUtils";
 
 // Initialize Ajv validator
 const ajv = new Ajv({ allErrors: true });
 addFormats(ajv);
-const validateEvent = ajv.compile(eventFulfilledSchema);
 
 const TEST_CASE_13_NAME = "Test Case 13: Respond to Asynchronous PCF Request";
-const MANDATORY_VERSIONS = ["V2.2", "V2.3"];
+const MANDATORY_VERSIONS = ["V2.2", "V2.3", "V3.0"];
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -29,7 +29,10 @@ export const handler = async (
 
       /* We only care about the fulfilled event in response to TESTCASE#12 for this part as Test Case 13 is basically a follow-up
          that processes the call back from a host system in response to the event fired in test case 12 */
-      if (body.type === EventTypes.FULFILLED) {
+      if (
+        body.type === EventTypes.FULFILLED ||
+        body.type === EventTypesV3.FULFILLED
+      ) {
         const testData = await getTestData(body.data.requestEventId);
 
         if (!testData) {
@@ -49,7 +52,11 @@ export const handler = async (
 
         let testResult: TestResult;
 
-        // Validate the event body against our schema
+        const validateEvent = ajv.compile(
+          testData.version.startsWith("V2")
+            ? eventFulfilledSchema
+            : v3_0_EventFulfilledSchema
+        );
         const isValid = validateEvent(body);
 
         if (isValid) {

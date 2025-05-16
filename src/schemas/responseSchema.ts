@@ -16,6 +16,11 @@ import {
   v2_3_productFootprintSchema,
   eventFulfilledSchema,
 } from "./v2_3_schema";
+import {
+  v3_0_ResponseSchema,
+  v3_0_productFootprintSchema,
+  v3_0_EventFulfilledSchema,
+} from "./v3_0_schema";
 
 // Simple response schemas for general use
 export const simpleResponseSchema = {
@@ -61,4 +66,7 @@ export {
   v2_3_ResponseSchema,
   v2_3_productFootprintSchema,
   eventFulfilledSchema,
+  v3_0_ResponseSchema,
+  v3_0_productFootprintSchema,
+  v3_0_EventFulfilledSchema,
 };

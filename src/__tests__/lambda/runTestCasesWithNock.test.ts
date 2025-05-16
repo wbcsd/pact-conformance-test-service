@@ -250,7 +250,7 @@ describe("runTestCases Lambda handler with nock", () => {
     expect(nock.isDone()).toBe(true);
   });
 
-  test.only("should execute test cases with real HTTP mocks and return success when all tests pass for V3", async () => {
+  test("should execute test cases with real HTTP mocks and return success when all tests pass for V3", async () => {
     // Helper function to persist nock definitions across multiple test cases
     const persistentNock = (baseUrl: string) => {
       return nock(baseUrl).persist();

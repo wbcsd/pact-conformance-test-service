@@ -187,7 +187,7 @@ export const generateV3TestCases = ({
         id: testRunId,
         source: webhookUrl,
         time: new Date().toISOString(),
-        type: "org.wbcsd.pathfinder.ProductFootprintRequest.Created.v1",
+        type: "org.wbcsd.pact.ProductFootprint.RequestCreatedEvent.3",
         data: {
           pf: {
             productIds: footprints.data[0].productIds,
@@ -206,7 +206,7 @@ export const generateV3TestCases = ({
       endpoint: `/3/events`,
       expectedStatusCodes: [400],
       requestData: {
-        type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
+        type: "org.wbcsd.pact.ProductFootprint.PublishedEvent.3",
         specversion: "1.0",
         id: testRunId,
         source: webhookUrl,
@@ -235,7 +235,7 @@ export const generateV3TestCases = ({
         id: testRunId,
         source: webhookUrl,
         time: new Date().toISOString(),
-        type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
+        type: "org.wbcsd.pact.ProductFootprint.PublishedEvent.3",
         data: {
           pf: {
             productIds: ["urn:gtin:4712345060507"],
@@ -255,7 +255,7 @@ export const generateV3TestCases = ({
       endpoint: `/3/events`,
       expectedStatusCodes: [200],
       requestData: {
-        type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
+        type: "org.wbcsd.pact.ProductFootprint.PublishedEvent.3",
         specversion: "1.0",
         id: randomUUID(),
         source: webhookUrl,
