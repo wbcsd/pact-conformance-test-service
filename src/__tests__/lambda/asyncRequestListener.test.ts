@@ -2,7 +2,7 @@ import { handler } from "../../lambda/asyncRequestListener";
 import { APIGatewayProxyEvent } from "aws-lambda";
 
 import * as dbUtils from "../../utils/dbUtils";
-import { mockFootprints } from "../mocks/footprints";
+import { mockFootprints, mockFootprintsV3 } from "../mocks/footprints";
 
 // Mock the DB utils
 jest.mock("../../utils/dbUtils");
@@ -48,7 +48,7 @@ describe("asyncRequestListener Lambda handler", () => {
     const currentTime = new Date().toISOString();
     // Valid event fulfillment body that matches the schema requirements
     const validEventBody = {
-      id: "123e4567-e89b-12d3-a456-426614174000", // Valid UUID format
+      id: "123e4567-e89b-12d3-a456-426614174000",
       eventId: "123e4567-e89b-12d3-a456-426614174000",
       specversion: "1.0",
       type: "org.wbcsd.pathfinder.ProductFootprintRequest.Fulfilled.v1",
@@ -59,6 +59,63 @@ describe("asyncRequestListener Lambda handler", () => {
         pfs: [
           {
             ...mockFootprints.data[0],
+            productIds: mockTestData.productIds,
+          },
+        ],
+      },
+    };
+
+    // Create the API Gateway event
+    const event = createEvent(validEventBody);
+
+    // Call the handler
+    const response = await handler(event);
+
+    // Validate the response
+    expect(response.statusCode).toBe(200);
+
+    // Verify that getTestData was called correctly
+    expect(dbUtils.getTestData).toHaveBeenCalledWith("request-123");
+
+    // Verify that saveTestCaseResult was called with the successful test result
+    expect(dbUtils.saveTestCaseResult).toHaveBeenCalledWith(
+      "request-123",
+      expect.objectContaining({
+        name: "Test Case 13: Respond to Asynchronous PCF Request",
+        status: "SUCCESS",
+        success: true,
+        mandatory: true,
+        testKey: "TESTCASE#13",
+      }),
+      true
+    );
+  });
+
+  test("should process valid fulfillment event for V3.0 and mark test as successful", async () => {
+    // Mock test data that would be retrieved from DB with V3.0 version
+    const mockTestData = {
+      version: "V3.0",
+      productIds: ["urn:product-123", "urn:product-456"],
+    };
+
+    // Mock DB utility functions
+    (dbUtils.getTestData as jest.Mock).mockResolvedValue(mockTestData);
+    (dbUtils.saveTestCaseResult as jest.Mock).mockResolvedValue(undefined);
+
+    const currentTime = new Date().toISOString();
+    // Valid event fulfillment body for V3.0 that matches the schema requirements
+    const validEventBody = {
+      id: "123e4567-e89b-12d3-a456-426614174000",
+      eventId: "123e4567-e89b-12d3-a456-426614174000",
+      specversion: "1.0",
+      type: "org.wbcsd.pact.ProductFootprint.RequestFulfilledEvent.3",
+      source: "https://example.com",
+      time: currentTime,
+      data: {
+        requestEventId: "request-123",
+        pfs: [
+          {
+            ...mockFootprintsV3.data[0],
             productIds: mockTestData.productIds,
           },
         ],
