@@ -33,6 +33,13 @@ resource "aws_apigatewayv2_route" "async_request_listener_route" {
   target    = "integrations/${aws_apigatewayv2_integration.async_request_listener_integration.id}"
 }
 
+# Route for asyncRequestListener Lambda - v3 endpoint
+resource "aws_apigatewayv2_route" "async_request_listener_v3_route" {
+  api_id    = aws_apigatewayv2_api.http_api.id
+  route_key = "POST /3/events"
+  target    = "integrations/${aws_apigatewayv2_integration.async_request_listener_integration.id}"
+}
+
 # GET /getTestResults route
 resource "aws_apigatewayv2_route" "get_test_results" {
   api_id    = aws_apigatewayv2_api.http_api.id
