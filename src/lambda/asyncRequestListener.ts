@@ -13,7 +13,7 @@ const ajv = new Ajv({ allErrors: true });
 addFormats(ajv);
 
 const TEST_CASE_13_NAME = "Test Case 13: Respond to Asynchronous PCF Request";
-const TEST_CASE_33_NAME = "Test Case 33: Handle Rejected PCF Request";
+const TEST_CASE_33_NAME = "Test Case 14: Handle Rejected PCF Request";
 
 const MANDATORY_VERSIONS = ["V2.2", "V2.3", "V3.0"];
 
@@ -130,7 +130,7 @@ export const handler = async (
             status: "FAILURE",
             success: false,
             mandatory: isMandatory,
-            testKey: "TESTCASE#33",
+            testKey: "TESTCASE#14",
             errorMessage:
               "Rejected event must contain an error object with a code and message",
           };

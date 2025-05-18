@@ -201,7 +201,28 @@ export const generateV3TestCases = ({
     // Test Case 13 is about receiving the PCF data from the webhook endpoint as a data recipient, this request will be triggered by the previous test.
     // It will be tested in the listener lambda
     {
-      name: "Test Case 14: Attempt Action Events with Invalid Token",
+      name: "Test Case 15: Receive Notification of PCF Update (Published Event)",
+      method: "POST",
+      endpoint: `/3/events`,
+      expectedStatusCodes: [200],
+      requestData: {
+        type: "org.wbcsd.pact.ProductFootprint.PublishedEvent.3",
+        specversion: "1.0",
+        id: randomUUID(),
+        source: webhookUrl,
+        time: new Date().toISOString(),
+        data: {
+          pfIds: ["urn:gtin:4712345060507"],
+        },
+      },
+      headers: {
+        "Content-Type": "application/cloudevents+json; charset=UTF-8",
+      },
+      mandatoryVersion: ["V3.0"],
+      testKey: "TESTCASE#15",
+    },
+    {
+      name: "Test Case 16: Attempt Action Events with Invalid Token",
       method: "POST",
       endpoint: `/3/events`,
       expectedStatusCodes: [400],
@@ -223,10 +244,10 @@ export const generateV3TestCases = ({
         return code === "BadRequest";
       },
       mandatoryVersion: ["V3.0"],
-      testKey: "TESTCASE#14",
+      testKey: "TESTCASE#16",
     },
     {
-      name: "Test Case 15: Attempt Action Events through HTTP (non-HTTPS)",
+      name: "Test Case 17: Attempt Action Events through HTTP (non-HTTPS)",
       method: "POST",
       customUrl: `${baseUrl.replace("https", "http")}/3/events`,
       expectedStatusCodes: [400, 401, 403, 405],
@@ -247,51 +268,30 @@ export const generateV3TestCases = ({
         "Content-Type": "application/cloudevents+json; charset=UTF-8",
       },
       mandatoryVersion: ["V3.0"],
-      testKey: "TESTCASE#15",
+      testKey: "TESTCASE#17",
     },
     {
-      name: "Test Case 16: Receive Notification of PCF Update",
-      method: "POST",
-      endpoint: `/3/events`,
-      expectedStatusCodes: [200],
-      requestData: {
-        type: "org.wbcsd.pact.ProductFootprint.PublishedEvent.3",
-        specversion: "1.0",
-        id: randomUUID(),
-        source: webhookUrl,
-        time: new Date().toISOString(),
-        data: {
-          pfIds: ["urn:gtin:4712345060507"],
-        },
-      },
-      headers: {
-        "Content-Type": "application/cloudevents+json; charset=UTF-8",
-      },
-      mandatoryVersion: ["V3.0"],
-      testKey: "TESTCASE#16",
-    },
-    {
-      name: "Test Case 17: OpenId Connect-based Authentication Flow",
+      name: "Test Case 18: OpenId Connect-based Authentication Flow",
       method: "POST",
       customUrl: oidAuthUrl || undefined,
       expectedStatusCodes: [200],
       headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
-      testKey: "TESTCASE#17",
-      requestData: "grant_type=client_credentials",
-      mandatoryVersion: ["V3.0"],
-    },
-    {
-      name: "Test Case 18: OpenId connect-based authentication flow with incorrect credentials",
-      method: "POST",
-      customUrl: oidAuthUrl || undefined,
-      expectedStatusCodes: [400, 401],
-      headers: getIncorrectAuthHeaders(baseUrl),
       testKey: "TESTCASE#18",
       requestData: "grant_type=client_credentials",
       mandatoryVersion: ["V3.0"],
     },
     {
-      name: `Test Case 19: V3 Filtering Functionality: Get Filtered List of Footprints by "productId" parameter`,
+      name: "Test Case 19: OpenId connect-based authentication flow with incorrect credentials",
+      method: "POST",
+      customUrl: oidAuthUrl || undefined,
+      expectedStatusCodes: [400, 401],
+      headers: getIncorrectAuthHeaders(baseUrl),
+      testKey: "TESTCASE#19",
+      requestData: "grant_type=client_credentials",
+      mandatoryVersion: ["V3.0"],
+    },
+    {
+      name: `Test Case 20: V3 Filtering Functionality: Get Filtered List of Footprints by "productId" parameter`,
       method: "GET",
       endpoint: `/3/footprints?$productId=${footprints.data[0].productIds[0]}`,
       expectedStatusCodes: [200],
@@ -302,11 +302,11 @@ export const generateV3TestCases = ({
         );
       },
       conditionErrorMessage: `One or more footprints do not match the condition: 'productIds contains ${footprints.data[0].productIds.toString()}'`,
-      testKey: "TESTCASE#19",
+      testKey: "TESTCASE#20",
       mandatoryVersion: ["V3.0"],
     },
     {
-      name: `Test Case 20: V3 Filtering Functionality: Get Filtered List of Footprints by "companyId" parameter`,
+      name: `Test Case 21: V3 Filtering Functionality: Get Filtered List of Footprints by "companyId" parameter`,
       method: "GET",
       endpoint: `/3/footprints?$companyId=${footprints.data[0].companyIds[0]}`,
       expectedStatusCodes: [200],
@@ -317,11 +317,11 @@ export const generateV3TestCases = ({
         );
       },
       conditionErrorMessage: `One or more footprints do not match the condition: 'companyIds contains ${footprints.data[0].companyIds[0]}'`,
-      testKey: "TESTCASE#20",
+      testKey: "TESTCASE#21",
       mandatoryVersion: ["V3.0"],
     },
     {
-      name: `Test Case 21: V3 Filtering Functionality: Get Filtered List of Footprints by "geography" parameter`,
+      name: `Test Case 22: V3 Filtering Functionality: Get Filtered List of Footprints by "geography" parameter`,
       method: "GET",
       endpoint: `/3/footprints?$geography=${footprints.data[0].pcf.geographyCountry}`,
       expectedStatusCodes: [200],
@@ -334,11 +334,11 @@ export const generateV3TestCases = ({
         );
       },
       conditionErrorMessage: `One or more footprints do not match the condition: 'pcf.geographyCountry = ${footprints.data[0].pcf.geographyCountry}'`,
-      testKey: "TESTCASE#21",
+      testKey: "TESTCASE#22",
       mandatoryVersion: ["V3.0"],
     },
     {
-      name: `Test Case 22: V3 Filtering Functionality: Get Filtered List of Footprints by "classification" parameter`,
+      name: `Test Case 23: V3 Filtering Functionality: Get Filtered List of Footprints by "classification" parameter`,
       method: "GET",
       endpoint: `/3/footprints?$classification=${footprints.data[0].productClassifications[0]}`,
       expectedStatusCodes: [200],
@@ -351,11 +351,11 @@ export const generateV3TestCases = ({
         );
       },
       conditionErrorMessage: `One or more footprints do not match the condition: 'productClassifications contains ${footprints.data[0].productClassifications[0]}'`,
-      testKey: "TESTCASE#22",
+      testKey: "TESTCASE#23",
       mandatoryVersion: ["V3.0"],
     },
     {
-      name: `Test Case 23: V3 Filtering Functionality: Get Filtered List of Footprints by "validOn" parameter`,
+      name: `Test Case 24: V3 Filtering Functionality: Get Filtered List of Footprints by "validOn" parameter`,
       method: "GET",
       endpoint: `/3/footprints?$validOn=${footprints.data[0].validityPeriodStart}`,
       expectedStatusCodes: [200],
@@ -373,11 +373,11 @@ export const generateV3TestCases = ({
         );
       },
       conditionErrorMessage: `One or more footprints do not match the condition: 'validityPeriodStart <= ${footprints.data[0].validityPeriodStart} <= validityPeriodEnd'`,
-      testKey: "TESTCASE#23",
+      testKey: "TESTCASE#24",
       mandatoryVersion: ["V3.0"],
     },
     {
-      name: `Test Case 24: V3 Filtering Functionality: Get Filtered List of Footprints by "validAfter" parameter`,
+      name: `Test Case 25: V3 Filtering Functionality: Get Filtered List of Footprints by "validAfter" parameter`,
       method: "GET",
       endpoint: `/3/footprints?$validAfter=${getDateOneDayBefore(
         footprints.data[0].validityPeriodStart
@@ -396,11 +396,11 @@ export const generateV3TestCases = ({
       conditionErrorMessage: `One or more footprints do not match the condition: 'validityPeriodStart > ${getDateOneDayBefore(
         footprints.data[0].validityPeriodStart
       )}'`,
-      testKey: "TESTCASE#24",
+      testKey: "TESTCASE#25",
       mandatoryVersion: ["V3.0"],
     },
     {
-      name: `Test Case 25: V3 Filtering Functionality: Get Filtered List of Footprints by "validBefore" parameter`,
+      name: `Test Case 26: V3 Filtering Functionality: Get Filtered List of Footprints by "validBefore" parameter`,
       method: "GET",
       endpoint: `/3/footprints?$validBefore=${getDateOneDayAfter(
         footprints.data[0].validityPeriodEnd
@@ -417,11 +417,11 @@ export const generateV3TestCases = ({
       conditionErrorMessage: `One or more footprints do not match the condition: 'validityPeriodEnd < ${getDateOneDayAfter(
         footprints.data[0].validityPeriodEnd
       )}'`,
-      testKey: "TESTCASE#25",
+      testKey: "TESTCASE#26",
       mandatoryVersion: ["V3.0"],
     },
     {
-      name: `Test Case 26: V3 Filtering Functionality: Get Filtered List of Footprints by "status" parameter`,
+      name: `Test Case 27: V3 Filtering Functionality: Get Filtered List of Footprints by "status" parameter`,
       method: "GET",
       endpoint: `/3/footprints?$status=${footprints.data[0].status}`,
       expectedStatusCodes: [200],
@@ -433,11 +433,11 @@ export const generateV3TestCases = ({
         );
       },
       conditionErrorMessage: `One or more footprints do not match the condition: 'status = ${footprints.data[0].status}'`,
-      testKey: "TESTCASE#26",
+      testKey: "TESTCASE#27",
       mandatoryVersion: ["V3.0"],
     },
     {
-      name: `Test Case 27: V3 Filtering Functionality: Get Filtered List of Footprints by both "status" and "productId" parameters`,
+      name: `Test Case 28: V3 Filtering Functionality: Get Filtered List of Footprints by both "status" and "productId" parameters`,
       method: "GET",
       endpoint: `/3/footprints?$status=${footprints.data[0].status}&$productId=${footprints.data[0].productIds[0]}`,
       expectedStatusCodes: [200],
@@ -450,7 +450,7 @@ export const generateV3TestCases = ({
         );
       },
       conditionErrorMessage: `One or more footprints do not match the condition: 'status = ${footprints.data[0].status} AND productIds contains ${footprints.data[0].productIds[0]}'`,
-      testKey: "TESTCASE#27",
+      testKey: "TESTCASE#28",
       mandatoryVersion: ["V3.0"],
     },
   ];

@@ -208,7 +208,28 @@ export const generateV2TestCases = ({
     // Test Case 13 is about receiving the PCF data from the webhook endpoint as a data recipient, this request will be triggered by the previous test.
     // It will be tested in the listener lambda
     {
-      name: "Test Case 14: Attempt Action Events with Invalid Token",
+      name: "Test Case 15: Receive Notification of PCF Update (Published Event)",
+      method: "POST",
+      endpoint: `/2/events`,
+      expectedStatusCodes: [200],
+      requestData: {
+        type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
+        specversion: "1.0",
+        id: randomUUID(),
+        source: webhookUrl,
+        time: new Date().toISOString(),
+        data: {
+          pfIds: ["urn:gtin:4712345060507"],
+        },
+      },
+      headers: {
+        "Content-Type": "application/cloudevents+json; charset=UTF-8",
+      },
+      mandatoryVersion: ["V2.2", "V2.3"],
+      testKey: "TESTCASE#15",
+    },
+    {
+      name: "Test Case 16: Attempt Action Events with Invalid Token",
       method: "POST",
       endpoint: `/2/events`,
       expectedStatusCodes: [400],
@@ -230,10 +251,10 @@ export const generateV2TestCases = ({
         return code === "BadRequest";
       },
       mandatoryVersion: ["V2.2", "V2.3"],
-      testKey: "TESTCASE#14",
+      testKey: "TESTCASE#16",
     },
     {
-      name: "Test Case 15: Attempt Action Events through HTTP (non-HTTPS)",
+      name: "Test Case 17: Attempt Action Events through HTTP (non-HTTPS)",
       method: "POST",
       customUrl: `${baseUrl.replace("https", "http")}/2/events`,
       expectedStatusCodes: [400, 401, 403, 405],
@@ -254,49 +275,28 @@ export const generateV2TestCases = ({
         "Content-Type": "application/cloudevents+json; charset=UTF-8",
       },
       mandatoryVersion: ["V2.2", "V2.3"],
-      testKey: "TESTCASE#15",
+      testKey: "TESTCASE#17",
     },
     {
-      name: "Test Case 16: Receive Notification of PCF Update",
-      method: "POST",
-      endpoint: `/2/events`,
-      expectedStatusCodes: [200],
-      requestData: {
-        type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
-        specversion: "1.0",
-        id: randomUUID(),
-        source: webhookUrl,
-        time: new Date().toISOString(),
-        data: {
-          pfIds: ["urn:gtin:4712345060507"],
-        },
-      },
-      headers: {
-        "Content-Type": "application/cloudevents+json; charset=UTF-8",
-      },
-      mandatoryVersion: ["V2.2", "V2.3"],
-      testKey: "TESTCASE#16",
-    },
-    {
-      name: "Test Case 17: OpenId Connect-based Authentication Flow",
+      name: "Test Case 18: OpenId Connect-based Authentication Flow",
       method: "POST",
       customUrl: oidAuthUrl || undefined,
       expectedStatusCodes: [200],
       headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
-      testKey: "TESTCASE#17",
-      requestData: "grant_type=client_credentials",
-    },
-    {
-      name: "Test Case 18: OpenId connect-based authentication flow with incorrect credentials",
-      method: "POST",
-      customUrl: oidAuthUrl || undefined,
-      expectedStatusCodes: [400, 401],
-      headers: getIncorrectAuthHeaders(baseUrl),
       testKey: "TESTCASE#18",
       requestData: "grant_type=client_credentials",
     },
     {
-      name: "Test Case 19: Get Filtered List of Footprints",
+      name: "Test Case 19: OpenId connect-based authentication flow with incorrect credentials",
+      method: "POST",
+      customUrl: oidAuthUrl || undefined,
+      expectedStatusCodes: [400, 401],
+      headers: getIncorrectAuthHeaders(baseUrl),
+      testKey: "TESTCASE#19",
+      requestData: "grant_type=client_credentials",
+    },
+    {
+      name: "Test Case 20: Get Filtered List of Footprints",
       method: "GET",
       endpoint: `/2/footprints?$filter=${encodeURIComponent(
         `created ge '${footprints.data[0].created}'`
@@ -310,7 +310,7 @@ export const generateV2TestCases = ({
         );
       },
       conditionErrorMessage: `One or more footprints do not match the condition: 'created date >= ${footprints.data[0].created}'`,
-      testKey: "TESTCASE#19",
+      testKey: "TESTCASE#20",
     },
   ];
 };

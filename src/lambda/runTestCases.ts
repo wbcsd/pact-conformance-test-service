@@ -154,11 +154,11 @@ export const handler = async (
         testKey: "TESTCASE#13",
       },
       {
-        name: "Test Case 33: Handle Rejected PCF Request",
+        name: "Test Case 14: Handle Rejected PCF Request",
         status: "PENDING",
         success: false,
         mandatory: version === "V2.3" || version === "V3.0",
-        testKey: "TESTCASE#33",
+        testKey: "TESTCASE#14",
       },
     ];
 
