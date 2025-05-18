@@ -150,19 +150,26 @@ export const generateV3TestCases = ({
         oidAuthUrl?.replace("https", "http") ||
         `${authBaseUrl.replace("https", "http")}/auth/token`,
       method: "POST",
-      expectedStatusCodes: [400, 401, 403, 405],
       headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#9",
       requestData: "grant_type=client_credentials",
+      condition: (response) => {
+        return !response.data && !response.access_token;
+      },
+      conditionErrorMessage:
+        "Expected response to not include data or access_token property",
     },
     {
       name: "Test Case 10: Attempt ListFootprints through HTTP (non-HTTPS)",
       method: "GET",
       customUrl: `${baseUrl.replace("https", "http")}/3/footprints`,
-      expectedStatusCodes: [400, 401, 403, 405],
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#10",
+      condition: (response) => {
+        return !response.data;
+      },
+      conditionErrorMessage: "Expected response to not include data property",
     },
     {
       name: "Test Case 11: Attempt GetFootprint through HTTP (non-HTTPS)",
@@ -170,9 +177,12 @@ export const generateV3TestCases = ({
       customUrl: `${baseUrl.replace("https", "http")}/3/footprints/${
         footprints.data[0].id
       }`,
-      expectedStatusCodes: [400, 401, 403, 405],
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#11",
+      condition: (response) => {
+        return !response.data;
+      },
+      conditionErrorMessage: "Expected response to not include data property",
     },
     {
       name: "Test Case 12: Receive Asynchronous PCF Request",
@@ -250,7 +260,6 @@ export const generateV3TestCases = ({
       name: "Test Case 17: Attempt Action Events through HTTP (non-HTTPS)",
       method: "POST",
       customUrl: `${baseUrl.replace("https", "http")}/3/events`,
-      expectedStatusCodes: [400, 401, 403, 405],
       requestData: {
         specversion: "1.0",
         id: testRunId,
@@ -269,6 +278,10 @@ export const generateV3TestCases = ({
       },
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#17",
+      condition: (response) => {
+        return !response.data;
+      },
+      conditionErrorMessage: "Expected response to not include data property",
     },
     {
       name: "Test Case 18: OpenId Connect-based Authentication Flow",

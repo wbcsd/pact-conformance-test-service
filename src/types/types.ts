@@ -23,10 +23,10 @@ export interface TestCase {
   name: string;
   method: "GET" | "POST" | "PUT" | "DELETE";
   endpoint?: string;
-  expectedStatusCodes: number[];
+  expectedStatusCodes?: number[];
   schema?: object;
   requestData?: any;
-  condition?: (response: any) => boolean;
+  condition?: (response: any, responseHeaders: Headers) => boolean;
   conditionErrorMessage?: string;
   headers?: Record<string, string>;
   customUrl?: string;

@@ -87,7 +87,10 @@ export const runTestCase = async (
   try {
     const response = await fetch(url, options);
 
-    if (!testCase.expectedStatusCodes.includes(response.status)) {
+    if (
+      testCase.expectedStatusCodes &&
+      !testCase.expectedStatusCodes.includes(response.status)
+    ) {
       return {
         name: testCase.name,
         status: "FAILURE",
@@ -135,7 +138,10 @@ export const runTestCase = async (
 
     // Run condition if provided
     if (typeof testCase.condition === "function") {
-      const conditionPassed = testCase.condition(responseData);
+      const conditionPassed = testCase.condition(
+        responseData,
+        response.headers
+      );
       if (!conditionPassed) {
         return {
           name: testCase.name,

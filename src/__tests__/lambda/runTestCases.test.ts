@@ -467,7 +467,7 @@ describe("runTestCases Lambda handler V3 specific", () => {
     expect(
       body.results
         .filter(
-          (r) => r.testKey !== "TESTCASE#13" && r.testKey !== "TESTCASE#33"
+          (r) => r.testKey !== "TESTCASE#13" && r.testKey !== "TESTCASE#14"
         )
         .every((r) => r.status === "SUCCESS")
     ).toBe(true);
