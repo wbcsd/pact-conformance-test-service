@@ -139,7 +139,7 @@ export const handler = async (
       baseUrl,
       accessToken,
       version,
-      ["null"], // SPs will be instructed to reject a request with null productIds
+      ["urn:pact:null"], // SPs will be instructed to reject a request with null productIds
       testRunId,
       WEBHOOK_URL
     );
