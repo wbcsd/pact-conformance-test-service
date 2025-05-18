@@ -298,8 +298,10 @@ describe("asyncRequestListener Lambda handler", () => {
     expect(dbUtils.saveTestCaseResult).not.toHaveBeenCalled();
   });
 
-  test("should return 200 status code even when testRunId is missing", async () => {
+  test("should return 400 status code even when test data cannot be found", async () => {
     // Create event with body but no testRunId
+    (dbUtils.getTestData as jest.Mock).mockResolvedValue(null);
+
     const event = createEvent({
       data: { requestEventId: "123" },
     });
@@ -308,10 +310,9 @@ describe("asyncRequestListener Lambda handler", () => {
     const response = await handler(event);
 
     // Verify response is still 200 even though processing didn't happen
-    expect(response.statusCode).toBe(200);
+    expect(response.statusCode).toBe(400);
 
-    // Verify that getTestData was not called
-    expect(dbUtils.getTestData).not.toHaveBeenCalled();
+    expect(dbUtils.getTestData).toHaveBeenCalled();
     expect(dbUtils.saveTestCaseResult).not.toHaveBeenCalled();
   });
 
@@ -351,7 +352,16 @@ describe("asyncRequestListener Lambda handler", () => {
     expect(response.statusCode).toBe(400);
   });
 
-  test("should do nothing when the event type is not Fulfilled", async () => {
+  test("should do nothing when the event type is not Fulfilled or Rejected", async () => {
+    // Mock test data that would be retrieved from DB
+    const mockTestData = {
+      version: "V2.3",
+      productIds: ["urn:product-123", "urn:product-456"],
+    };
+
+    // Mock DB utility functions
+    (dbUtils.getTestData as jest.Mock).mockResolvedValue(mockTestData);
+
     // Valid event body
     const eventBody = {
       eventId: "event-id-1234",
@@ -380,7 +390,6 @@ describe("asyncRequestListener Lambda handler", () => {
     expect(response.statusCode).toBe(200);
 
     // Verify that DB functions were not called
-    expect(dbUtils.getTestData).not.toHaveBeenCalled();
     expect(dbUtils.saveTestCaseResult).not.toHaveBeenCalled();
   });
 });

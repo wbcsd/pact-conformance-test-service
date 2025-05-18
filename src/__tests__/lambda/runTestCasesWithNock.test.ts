@@ -238,7 +238,7 @@ describe("runTestCases Lambda handler with nock", () => {
       JSON.parse(result.body).results.filter(
         (r: TestResult) => r.success === false
       )
-    ).toHaveLength(1); // Only test 13 should fail
+    ).toHaveLength(2); // Async tests should be pending
 
     expect(
       JSON.parse(result.body).results.find(
@@ -466,8 +466,7 @@ describe("runTestCases Lambda handler with nock", () => {
       JSON.parse(result.body).results.filter(
         (r: TestResult) => r.success === false
       )
-    ).toHaveLength(1); // Only test 13 should fail
-
+    ).toHaveLength(2); // Async tests should be pending
     expect(
       JSON.parse(result.body).results.find(
         (r: TestResult) => r.success === false && r.mandatory

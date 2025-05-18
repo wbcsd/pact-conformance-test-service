@@ -13,6 +13,8 @@ const ajv = new Ajv({ allErrors: true });
 addFormats(ajv);
 
 const TEST_CASE_13_NAME = "Test Case 13: Respond to Asynchronous PCF Request";
+const TEST_CASE_33_NAME = "Test Case 33: Handle Rejected PCF Request";
+
 const MANDATORY_VERSIONS = ["V2.2", "V2.3", "V3.0"];
 
 export const handler = async (
@@ -27,27 +29,27 @@ export const handler = async (
       const body = JSON.parse(event.body);
       console.log("Request body:", JSON.stringify(body, null, 2));
 
+      const testData = await getTestData(body.data.requestEventId);
+
+      if (!testData) {
+        console.error(
+          `Test data not found for requestEventId: ${body.data.requestEventId}`
+        );
+        return {
+          statusCode: 400,
+          body: JSON.stringify({
+            code: "BadRequest",
+            message: "Bad Request",
+          }),
+        };
+      }
+
       /* We only care about the fulfilled event in response to TESTCASE#12 for this part as Test Case 13 is basically a follow-up
          that processes the call back from a host system in response to the event fired in test case 12 */
       if (
         body.type === EventTypes.FULFILLED ||
         body.type === EventTypesV3.FULFILLED
       ) {
-        const testData = await getTestData(body.data.requestEventId);
-
-        if (!testData) {
-          console.error(
-            `Test data not found for requestEventId: ${body.data.requestEventId}`
-          );
-          return {
-            statusCode: 400,
-            body: JSON.stringify({
-              code: "BadRequest",
-              message: "Bad Request",
-            }),
-          };
-        }
-
         const isMandatory = MANDATORY_VERSIONS.includes(testData.version);
 
         let testResult: TestResult;
@@ -93,6 +95,44 @@ export const handler = async (
             status: "FAILURE",
             success: false,
             errorMessage: `Product IDs do not match, the request was made for productIds [${testData.productIds}] but received data for productIds [${productIds}]`,
+          };
+        }
+
+        await saveTestCaseResult(body.data.requestEventId, testResult, true);
+      } else if (
+        body.type === EventTypes.REJECTED ||
+        body.type === EventTypesV3.REJECTED
+      ) {
+        console.log(
+          "Processing rejected event:",
+          JSON.stringify(body, null, 2)
+        );
+
+        const isMandatory = MANDATORY_VERSIONS.includes(testData.version);
+        let testResult: TestResult;
+
+        // For rejected events, we just check that the error object has a code and message
+        if (
+          body.data.error &&
+          body.data.error.code &&
+          body.data.error.message
+        ) {
+          testResult = {
+            name: TEST_CASE_33_NAME,
+            status: "SUCCESS",
+            success: true,
+            mandatory: isMandatory,
+            testKey: "TESTCASE#33",
+          };
+        } else {
+          testResult = {
+            name: TEST_CASE_33_NAME,
+            status: "FAILURE",
+            success: false,
+            mandatory: isMandatory,
+            testKey: "TESTCASE#33",
+            errorMessage:
+              "Rejected event must contain an error object with a code and message",
           };
         }
 

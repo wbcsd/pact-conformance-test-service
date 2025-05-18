@@ -6,6 +6,7 @@ import { generateV2TestCases } from "../test-cases/v2-test-cases";
 import {
   fetchFootprints,
   getLinksHeaderFromFootprints,
+  sendCreateRequestEvent,
 } from "../utils/fetchFootprints";
 import { runTestCase } from "../utils/runTestCase";
 import {
@@ -133,6 +134,16 @@ export const handler = async (
       results.push(result);
     }
 
+    // Send create request event for the async create request rejected test case.
+    await sendCreateRequestEvent(
+      baseUrl,
+      accessToken,
+      version,
+      ["null"], // SPs will be instructed to reject a request with null productIds
+      testRunId,
+      WEBHOOK_URL
+    );
+
     const resultsWithAsyncPlaceholder: TestResult[] = [
       ...results,
       {
@@ -141,6 +152,13 @@ export const handler = async (
         success: false,
         mandatory: version === "V2.3" || version === "V3.0",
         testKey: "TESTCASE#13",
+      },
+      {
+        name: "Test Case 33: Handle Rejected PCF Request",
+        status: "PENDING",
+        success: false,
+        mandatory: version === "V2.3" || version === "V3.0",
+        testKey: "TESTCASE#33",
       },
     ];
 

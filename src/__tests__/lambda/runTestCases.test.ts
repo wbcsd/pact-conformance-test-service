@@ -376,7 +376,7 @@ describe("runTestCases Lambda handler V2 specific", () => {
     expect(dbUtils.saveTestCaseResults).toHaveBeenCalled();
     const savedResults = (dbUtils.saveTestCaseResults as jest.Mock).mock
       .calls[0][1];
-    expect(savedResults).toHaveLength(19); // 19 test cases + 1 placeholder for TESTCASE#13
+    expect(savedResults).toHaveLength(20); // 18 test cases + 2 placeholders for the async test cases
   });
 });
 
@@ -439,7 +439,7 @@ describe("runTestCases Lambda handler V3 specific", () => {
     (dbUtils.saveTestCaseResults as jest.Mock).mockResolvedValue(undefined);
   });
 
-  test.only("should execute all test cases", async () => {
+  test("should execute all test cases", async () => {
     // Arrange
     const event = createEvent({
       baseUrl: mockBaseUrl,
@@ -466,7 +466,9 @@ describe("runTestCases Lambda handler V3 specific", () => {
 
     expect(
       body.results
-        .filter((r) => r.testKey !== "TESTCASE#13")
+        .filter(
+          (r) => r.testKey !== "TESTCASE#13" && r.testKey !== "TESTCASE#33"
+        )
         .every((r) => r.status === "SUCCESS")
     ).toBe(true);
 
@@ -487,13 +489,13 @@ describe("runTestCases Lambda handler V3 specific", () => {
     });
 
     // Verify that runTestCase was called the correct number of times (once for each test case)
-    // There are 26 test cases defined in the handler, plus one placeholder for TESTCASE#13 which is skipped
+    // There are 26 test cases defined in the handler, plus two placeholders for the async test cases which are skipped
     expect(runTestCaseModule.runTestCase).toHaveBeenCalledTimes(26);
 
     // Verify that saveTestCaseResults was called with the results
     expect(dbUtils.saveTestCaseResults).toHaveBeenCalled();
     const savedResults = (dbUtils.saveTestCaseResults as jest.Mock).mock
       .calls[0][1];
-    expect(savedResults).toHaveLength(27); // 26 test cases + 1 placeholder for TESTCASE#13
+    expect(savedResults).toHaveLength(28); // 26 test cases + 2 placeholder for the async test cases
   });
 });
