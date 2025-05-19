@@ -1,5 +1,6 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
+import betterErrors from "ajv-errors";
 import { ApiVersion, TestCase, TestResult } from "../types/types";
 
 const isMandatoryVersion = (testCase: TestCase, version: ApiVersion) => {
@@ -115,6 +116,7 @@ export const runTestCase = async (
     if (testCase.schema) {
       const ajv = new Ajv({ allErrors: true });
       addFormats(ajv);
+      betterErrors(ajv);
       const validate = ajv.compile(testCase.schema);
       const valid = validate(responseData);
       if (!valid) {

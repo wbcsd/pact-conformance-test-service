@@ -362,6 +362,10 @@ export const v3_0_ResponseSchema = {
           },
         },
       ],
+      errorMessage: {
+        oneOf:
+          "Only one of geographyRegionOrSubregion, geographyCountry, or geographyCountrySubdivision should be present.",
+      },
     },
     DataModelExtension: {
       type: "object",
@@ -719,6 +723,10 @@ export const v3_0_EventFulfilledSchema = {
           },
         },
       ],
+      errorMessage: {
+        oneOf:
+          "Only one of geographyRegionOrSubregion, geographyCountry, or geographyCountrySubdivision should be present.",
+      },
     },
     DataModelExtension: {
       type: "object",
