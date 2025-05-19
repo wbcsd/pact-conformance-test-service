@@ -149,6 +149,7 @@ export const getTestResults = async (testRunId: string) => {
   return {
     testRunId,
     timestamp: testDetails?.timestamp,
+    techSpecVersion: testDetails?.techSpecVersion,
     results: testResults,
   };
 };

@@ -34,6 +34,20 @@ export const handler = async (
           )
         : 0;
 
+    // Calculate non-mandatory passing percentage
+    const nonMandatoryTests = result.results.filter((test) => !test.mandatory);
+    const failedNonMandatoryTests = nonMandatoryTests.filter(
+      (test) => !test.success
+    );
+    const nonMandatoryPassingPercentage =
+      nonMandatoryTests.length > 0
+        ? Math.round(
+            ((nonMandatoryTests.length - failedNonMandatoryTests.length) /
+              nonMandatoryTests.length) *
+              100
+          )
+        : 0;
+
     return {
       statusCode: 200,
       headers: {
@@ -42,6 +56,7 @@ export const handler = async (
       body: JSON.stringify({
         ...result,
         passingPercentage,
+        nonMandatoryPassingPercentage,
       }),
     };
   } catch (error) {
