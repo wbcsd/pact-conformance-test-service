@@ -387,6 +387,128 @@ Example response body:
 }
 ```
 
+## Test Case #13: Respond to PCF Request Fulfilled Event
+
+This test verifies the ability to respond with appropriate status when receiving event notifications that fulfill a previously created PCF request.
+
+Request:
+
+- Method: `POST`
+- Endpoint: `{API_BASE_URL}/2/events`
+
+Request headers:
+
+```
+Content-Type: application/cloudevents+json; charset=UTF-8
+authorization: Bearer [BearerToken]
+```
+
+Request body:
+
+```
+{
+  "type": "org.wbcsd.pathfinder.ProductFootprintRequest.Fulfilled.v1",
+  "specversion": "1.0",
+  "id": "505e5d-4f9b-4b3b-9c05bc35-68f8",
+  "source": "https://webhook.example.com",
+  "time": "2023-05-19T11:00:00Z",
+  "data": {
+    "requestEventId": "test-run-id-12345",
+    "pfs": [
+      {
+        "id": "b1f8c0d2-7c4e-4e67-9a9c-2e4c12345678",
+        "specVersion": "2.0.0",
+        "version": 1,
+        "created": "2023-01-15T10:15:30Z",
+        "status": "Active",
+        "validityPeriodStart": "2023-01-15T10:15:30Z",
+        "validityPeriodEnd": "2025-12-31T00:00:00Z",
+        "companyName": "Acme Corp",
+        "companyIds": [
+          "urn:uuid:abc12345-6789-4def-0123-456789abcdef"
+        ],
+        "productDescription": "Renewable Diesel, soybean feedstock (bulk - no packaging)",
+        "productIds": ["urn:gtin:1234567890123"],
+        "pcf": {
+          "declaredUnit": "liter",
+          "unitaryProductAmount": 1,
+          "pCfExcludingBiogenic": 2.56,
+          "fossilGhgEmissions": 2.56,
+          "fossilCarbonContent": 0,
+          "biogenicCarbonContent": 0,
+          "characterizationFactors": "AR5",
+          "ipccCharacterizationFactorsSources": "AR5",
+          "crossSectoralStandardsUsed": ["GHG Protocol Product standard"],
+          "boundaryProcessesDescription": "Cradle-to-gate",
+          "referencePeriodStart": "2022-01-01T00:00:00Z",
+          "referencePeriodEnd": "2022-12-31T23:59:59Z",
+          "exemptedEmissionsPercent": 0,
+          "exemptedEmissionsDescription": "No exemptions",
+          "packagingEmissionsIncluded": false
+        }
+      }
+    ]
+  }
+}
+```
+
+Expected http status code: `200`
+
+Example response body:
+
+```
+{
+  "status": "accepted",
+  "message": "Event successfully processed"
+}
+```
+
+## Test Case #14: Respond to PCF Request Rejected Event
+
+This test verifies the ability to respond with appropriate status when receiving event notifications that reject a previously created PCF request.
+
+Request:
+
+- Method: `POST`
+- Endpoint: `{API_BASE_URL}/2/events`
+
+Request headers:
+
+```
+Content-Type: application/cloudevents+json; charset=UTF-8
+authorization: Bearer [BearerToken]
+```
+
+Request body:
+
+```
+{
+  "type": "org.wbcsd.pathfinder.ProductFootprintRequest.Rejected.v1",
+  "specversion": "1.0",
+  "id": "505e5d-4f9b-4b3b-9c05bc35-68f8",
+  "source": "https://webhook.example.com",
+  "time": "2023-05-19T11:00:00Z",
+  "data": {
+    "requestEventId": "test-run-id-12345",
+    "error": {
+      "code": "NotFound",
+      "message": "The requested footprint could not be found."
+    }
+  }
+}
+```
+
+Expected http status code: `200`
+
+Example response body:
+
+```
+{
+  "status": "accepted",
+  "message": "Event successfully processed"
+}
+```
+
 ## Test Case #15: Receive Notification of PCF Update (Published Event)
 
 This test verifies the ability to receive notifications of PCF updates in CloudEvents format.
