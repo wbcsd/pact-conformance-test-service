@@ -95,7 +95,6 @@ describe("runTestCases Lambda handler general tests", () => {
       clientSecret: "client-secret",
       version: "V2.2",
       companyName: "Test Company",
-      companyIdentifier: "test-company",
       adminEmail: "admin@test.com",
       adminName: "Admin Test",
     });
@@ -148,7 +147,6 @@ describe("runTestCases Lambda handler general tests", () => {
       clientSecret: "client-secret",
       version: "V2.3",
       companyName: "Test Company",
-      companyIdentifier: "test-company",
       adminEmail: "admin@test.com",
       adminName: "Admin Test",
     });
@@ -176,7 +174,6 @@ describe("runTestCases Lambda handler general tests", () => {
       clientSecret: "client-secret",
       version: "V2.0", // Using older version where some tests are optional
       companyName: "Test Company",
-      companyIdentifier: "test-company",
       adminEmail: "admin@test.com",
       adminName: "Admin Test",
     });
@@ -337,7 +334,6 @@ describe("runTestCases Lambda handler V2 specific", () => {
       clientSecret: "client-secret",
       version: "V2.2",
       companyName: "Test Company",
-      companyIdentifier: "test-company",
       adminEmail: "admin@test.com",
       adminName: "Admin Test",
     });
@@ -356,7 +352,6 @@ describe("runTestCases Lambda handler V2 specific", () => {
     expect(dbUtils.saveTestRun).toHaveBeenCalledWith({
       testRunId: "test-uuid-1234",
       companyName: "Test Company",
-      companyIdentifier: "test-company",
       adminEmail: "admin@test.com",
       adminName: "Admin Test",
       techSpecVersion: "V2.2",
@@ -447,7 +442,6 @@ describe("runTestCases Lambda handler V3 specific", () => {
       clientSecret: "client-secret",
       version: "V3.0",
       companyName: "Test Company",
-      companyIdentifier: "test-company",
       adminEmail: "admin@test.com",
       adminName: "Admin Test",
     });
@@ -476,7 +470,6 @@ describe("runTestCases Lambda handler V3 specific", () => {
     expect(dbUtils.saveTestRun).toHaveBeenCalledWith({
       testRunId: "test-uuid-1234",
       companyName: "Test Company",
-      companyIdentifier: "test-company",
       adminEmail: "admin@test.com",
       adminName: "Admin Test",
       techSpecVersion: "V3.0",

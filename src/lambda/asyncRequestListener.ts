@@ -2,6 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { EventTypes, EventTypesV3, TestResult } from "../types/types";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
+import betterErrors from "ajv-errors";
 import {
   eventFulfilledSchema,
   v3_0_EventFulfilledSchema,
@@ -11,6 +12,7 @@ import { getTestData, saveTestCaseResult } from "../utils/dbUtils";
 // Initialize Ajv validator
 const ajv = new Ajv({ allErrors: true });
 addFormats(ajv);
+betterErrors(ajv);
 
 const TEST_CASE_13_NAME = "Test Case 13: Respond to Asynchronous PCF Request";
 const TEST_CASE_33_NAME = "Test Case 14: Handle Rejected PCF Request";

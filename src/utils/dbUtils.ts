@@ -11,7 +11,6 @@ export const SK_TYPES = {
 interface TestRunDetails {
   testRunId: string;
   companyName: string;
-  companyIdentifier: string;
   adminEmail: string;
   adminName: string;
   techSpecVersion: string;
@@ -20,7 +19,6 @@ interface TestRunDetails {
 export const saveTestRun = async ({
   testRunId,
   companyName,
-  companyIdentifier,
   adminEmail,
   adminName,
   techSpecVersion,
@@ -40,7 +38,6 @@ export const saveTestRun = async ({
       SK: SK_TYPES.DETAILS,
       timestamp: timestamp,
       companyName,
-      companyIdentifier,
       adminEmail,
       adminName,
       techSpecVersion,

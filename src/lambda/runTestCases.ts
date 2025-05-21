@@ -30,7 +30,6 @@ export const handler = async (
     clientSecret,
     version,
     companyName,
-    companyIdentifier,
     adminEmail,
     adminName,
     customAuthBaseUrl,
@@ -40,7 +39,6 @@ export const handler = async (
     clientSecret: string;
     version: ApiVersion;
     companyName: string;
-    companyIdentifier: string;
     adminEmail: string;
     adminName: string;
     customAuthBaseUrl?: string;
@@ -52,7 +50,6 @@ export const handler = async (
     !clientSecret ||
     !version ||
     !companyName ||
-    !companyIdentifier ||
     !adminEmail ||
     !adminName
   ) {
@@ -71,7 +68,6 @@ export const handler = async (
     await saveTestRun({
       testRunId,
       companyName,
-      companyIdentifier,
       adminEmail,
       adminName,
       techSpecVersion: version,
