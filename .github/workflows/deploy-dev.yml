@@ -47,8 +47,8 @@ jobs:
         working-directory: infra
         run: terraform plan -var-file=dev.tfvars
 
-      # - name: Terraform Apply (dev)
-      #   working-directory: infra
-      #   run: terraform apply -auto-approve -var-file=dev.tfvars
-      #   env:
-      #     TF_IN_AUTOMATION: true
+      - name: Terraform Apply (dev)
+        working-directory: infra
+        run: terraform apply -auto-approve -var-file=dev.tfvars
+        env:
+          TF_IN_AUTOMATION: true
