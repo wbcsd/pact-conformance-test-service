@@ -14,5 +14,8 @@ zip -r -q lambdas.zip dist node_modules
 # Switch to the infra directory
 cd infra
 
+# Initialize Terraform
+terraform init -backend-config=backend-dev.hcl -reconfigure
+
 # Apply Terraform changes
-terraform apply
+terraform apply -var-file=dev.tfvars
