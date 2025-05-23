@@ -380,49 +380,58 @@ describe("runTestCases Lambda handler with nock", () => {
     // Mock for V3-specific test cases
     // Mock for Test Case 19: Filtered List of Footprints by productId
     persistentNock(mockBaseUrl)
-      .get("/3/footprints?$productId=urn:gtin:5695872369587")
+      .get("/3/footprints?productId=urn:gtin:5695872369587")
       .reply(200, mockFootprintsV3);
 
     // Mock for Test Case 20: Filtered List of Footprints by companyId
     persistentNock(mockBaseUrl)
-      .get("/3/footprints?$companyId=urn:company:example:company1")
+      .get("/3/footprints?companyId=urn:company:example:company1")
       .reply(200, mockFootprintsV3);
 
     // Mock for Test Case 21: Filtered List of Footprints by geography
     persistentNock(mockBaseUrl)
-      .get("/3/footprints?$geography=US")
+      .get("/3/footprints?geography=US")
       .reply(200, mockFootprintsV3);
 
     // Mock for Test Case 22: Filtered List of Footprints by classification
     persistentNock(mockBaseUrl)
       .get(
-        "/3/footprints?$classification=urn:pact:productclassification:cas:1456"
+        "/3/footprints?classification=urn:pact:productclassification:cas:1456"
       )
       .reply(200, mockFootprintsV3);
 
     // Mock for Test Case 23: Filtered List of Footprints by validOn
     persistentNock(mockBaseUrl)
-      .get("/3/footprints?$validOn=2024-12-31T00:00:00Z")
+      .get("/3/footprints?validOn=2024-12-31T00:00:00Z")
       .reply(200, mockFootprintsV3);
 
     // Mock for Test Case 24: Filtered List of Footprints by validAfter
     persistentNock(mockBaseUrl)
-      .get("/3/footprints?$validAfter=2024-12-30T00:00:00.000Z")
+      .get("/3/footprints?validAfter=2024-12-30T00:00:00.000Z")
       .reply(200, mockFootprintsV3);
 
     // Mock for Test Case 25: Filtered List of Footprints by validBefore
     persistentNock(mockBaseUrl)
-      .get("/3/footprints?$validBefore=2028-01-01T00:00:00.000Z")
+      .get("/3/footprints?validBefore=2028-01-01T00:00:00.000Z")
       .reply(200, mockFootprintsV3);
 
     // Mock for Test Case 26: Filtered List of Footprints by status
     persistentNock(mockBaseUrl)
-      .get("/3/footprints?$status=Active")
+      .get("/3/footprints?status=Active")
       .reply(200, mockFootprintsV3);
 
     // Mock for Test Case 27: Filtered List of Footprints by both status and productId
     persistentNock(mockBaseUrl)
-      .get("/3/footprints?$status=Active&$productId=urn:gtin:5695872369587")
+      .get("/3/footprints?status=Active&productId=urn:gtin:5695872369587")
+      .reply(200, mockFootprintsV3);
+
+    // Mock for Test Case 29: Filtered List of Footprints by multiple status values (OR logic)
+    persistentNock(mockBaseUrl)
+      .get(
+        new RegExp(
+          `^/3/footprints\\?status=${mockFootprintsV3.data[0].status}&status=[^&]+&status=[^&]+$`
+        )
+      )
       .reply(200, mockFootprintsV3);
 
     // Non https mocks

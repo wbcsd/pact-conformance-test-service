@@ -383,7 +383,7 @@ export const generateV3TestCases = ({
     {
       name: `Test Case 20: V3 Filtering Functionality: Get Filtered List of Footprints by "productId" parameter`,
       method: "GET",
-      endpoint: `/3/footprints?$productId=${filterParams.productId}`,
+      endpoint: `/3/footprints?productId=${filterParams.productId}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
@@ -400,7 +400,7 @@ export const generateV3TestCases = ({
     {
       name: `Test Case 21: V3 Filtering Functionality: Get Filtered List of Footprints by "companyId" parameter`,
       method: "GET",
-      endpoint: `/3/footprints?$companyId=${filterParams.companyId}`,
+      endpoint: `/3/footprints?companyId=${filterParams.companyId}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
@@ -417,7 +417,7 @@ export const generateV3TestCases = ({
     {
       name: `Test Case 22: V3 Filtering Functionality: Get Filtered List of Footprints by "geography" parameter`,
       method: "GET",
-      endpoint: `/3/footprints?$geography=${filterParams.geography}`,
+      endpoint: `/3/footprints?geography=${filterParams.geography}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
@@ -435,7 +435,7 @@ export const generateV3TestCases = ({
     {
       name: `Test Case 23: V3 Filtering Functionality: Get Filtered List of Footprints by "classification" parameter`,
       method: "GET",
-      endpoint: `/3/footprints?$classification=${filterParams.classification}`,
+      endpoint: `/3/footprints?classification=${filterParams.classification}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
@@ -452,7 +452,7 @@ export const generateV3TestCases = ({
     {
       name: `Test Case 24: V3 Filtering Functionality: Get Filtered List of Footprints by "validOn" parameter`,
       method: "GET",
-      endpoint: `/3/footprints?$validOn=${filterParams.validOn}`,
+      endpoint: `/3/footprints?validOn=${filterParams.validOn}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
@@ -476,7 +476,7 @@ export const generateV3TestCases = ({
     {
       name: `Test Case 25: V3 Filtering Functionality: Get Filtered List of Footprints by "validAfter" parameter`,
       method: "GET",
-      endpoint: `/3/footprints?$validAfter=${filterParams.validAfter}`,
+      endpoint: `/3/footprints?validAfter=${filterParams.validAfter}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
@@ -495,7 +495,7 @@ export const generateV3TestCases = ({
     {
       name: `Test Case 26: V3 Filtering Functionality: Get Filtered List of Footprints by "validBefore" parameter`,
       method: "GET",
-      endpoint: `/3/footprints?$validBefore=${filterParams.validBefore}`,
+      endpoint: `/3/footprints?validBefore=${filterParams.validBefore}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
@@ -514,7 +514,7 @@ export const generateV3TestCases = ({
     {
       name: `Test Case 27: V3 Filtering Functionality: Get Filtered List of Footprints by "status" parameter`,
       method: "GET",
-      endpoint: `/3/footprints?$status=${filterParams.status}`,
+      endpoint: `/3/footprints?status=${filterParams.status}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
@@ -532,7 +532,7 @@ export const generateV3TestCases = ({
     {
       name: `Test Case 28: V3 Filtering Functionality: Get Filtered List of Footprints by both "status" and "productId" parameters`,
       method: "GET",
-      endpoint: `/3/footprints?$status=${filterParams.status}&$productId=${filterParams.productId}`,
+      endpoint: `/3/footprints?status=${filterParams.status}&productId=${filterParams.productId}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
@@ -547,6 +547,26 @@ export const generateV3TestCases = ({
       mandatoryVersion: ["V3.0"],
       documentationUrl:
         "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-28-v3-filtering-functionality-get-filtered-list-of-footprints-by-both-status-and-productid-parameters",
+    },
+    {
+      name: "Test Case 29: V3 Filtering Functionality: Get Filtered List of Footprints by multiple filter parameters using OR logic (positive test case)",
+      method: "GET",
+      endpoint: `/3/footprints?status=${
+        filterParams.status
+      }&status=${randomString(8)}&status=${randomString(8)}`,
+      expectedStatusCodes: [200],
+      schema: simpleResponseSchema,
+      condition: ({ data }) => {
+        return data.every(
+          (footprint: { status: string }) =>
+            footprint.status === filterParams.status
+        );
+      },
+      conditionErrorMessage: `One or more footprints do not match the status filter in OR logic test: ${filterParams.status}`,
+      testKey: "TESTCASE#29",
+      mandatoryVersion: ["V3.0"],
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-29-v3-filtering-functionality-get-filtered-list-of-footprints-by-multiple-filter-parameters-using-or-logic-positive-test-case",
     },
   ];
 };
