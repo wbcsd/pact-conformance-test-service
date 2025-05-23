@@ -32,6 +32,7 @@ export interface TestCase {
   customUrl?: string;
   mandatoryVersion?: ApiVersion[];
   testKey: string;
+  documentationUrl?: string;
 }
 export interface TestResult {
   name: string;
@@ -42,6 +43,7 @@ export interface TestResult {
   mandatory: boolean;
   testKey: string;
   curlRequest?: string;
+  documentationUrl?: string;
 }
 
 export interface TestData {

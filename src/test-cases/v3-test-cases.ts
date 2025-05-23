@@ -99,6 +99,8 @@ export const generateV3TestCases = ({
       headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#1",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-1-obtain-auth-token-with-valid-credentials",
     },
     {
       name: "Test Case 2: Obtain auth token with invalid credentials",
@@ -109,6 +111,8 @@ export const generateV3TestCases = ({
       headers: getIncorrectAuthHeaders(baseUrl),
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#2",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-2-obtain-auth-token-with-invalid-credentials",
     },
     {
       name: "Test Case 3: Get PCF using GetFootprint",
@@ -122,6 +126,8 @@ export const generateV3TestCases = ({
       conditionErrorMessage: `Returned footprint does not match the requested footprint with id ${filterParams.id}`,
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#3",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-3-get-pcf-using-getfootprint",
     },
     {
       name: "Test Case 4: Get all PCFs using ListFootprints",
@@ -135,6 +141,8 @@ export const generateV3TestCases = ({
       conditionErrorMessage: "Number of footprints does not match",
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#4",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-4-get-all-pcfs-using-listfootprints",
     },
     {
       name: "Test Case 5: Pagination link implementation of Action ListFootprints",
@@ -144,6 +152,8 @@ export const generateV3TestCases = ({
       schema: simpleResponseSchema,
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#5",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-5-pagination-link-implementation-of-action-listfootprints",
     },
     {
       name: "Test Case 6: Attempt ListFootPrints with Invalid Token",
@@ -159,6 +169,8 @@ export const generateV3TestCases = ({
       },
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#6",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-6-attempt-listfootprints-with-invalid-token",
     },
     {
       name: "Test Case 7: Attempt GetFootprint with Invalid Token",
@@ -174,6 +186,8 @@ export const generateV3TestCases = ({
       },
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#7",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-7-attempt-getfootprint-with-invalid-token",
     },
     {
       name: "Test Case 8: Attempt GetFootprint with Non-Existent PfId",
@@ -186,6 +200,8 @@ export const generateV3TestCases = ({
       conditionErrorMessage: `Expected error code NoSuchFootprint in response.`,
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#8",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-8-attempt-getfootprint-with-non-existent-pfid",
     },
     {
       name: "Test Case 9: Attempt Authentication through HTTP (non-HTTPS)",
@@ -196,6 +212,8 @@ export const generateV3TestCases = ({
       headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#9",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-9-attempt-authentication-through-http-non-https",
       requestData: "grant_type=client_credentials",
       condition: (response) => {
         return !response.data && !response.access_token;
@@ -209,6 +227,8 @@ export const generateV3TestCases = ({
       customUrl: `${baseUrl.replace("https", "http")}/3/footprints`,
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#10",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-10-attempt-listfootprints-through-http-non-https",
       condition: (response) => {
         return !response.data;
       },
@@ -222,6 +242,8 @@ export const generateV3TestCases = ({
       }`,
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#11",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-11-attempt-getfootprint-through-http-non-https",
       condition: (response) => {
         return !response.data;
       },
@@ -250,6 +272,8 @@ export const generateV3TestCases = ({
       },
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#12",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-12-receive-asynchronous-pcf-request",
     },
     // Test Case 13 is about receiving the PCF data from the webhook endpoint as a data recipient, this request will be triggered by the previous test.
     // It will be tested in the listener lambda
@@ -273,6 +297,8 @@ export const generateV3TestCases = ({
       },
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#15",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-15-receive-notification-of-pcf-update-published-event",
     },
     {
       name: "Test Case 16: Attempt Action Events with Invalid Token",
@@ -298,6 +324,8 @@ export const generateV3TestCases = ({
       },
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#16",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-16-attempt-action-events-with-invalid-token",
     },
     {
       name: "Test Case 17: Attempt Action Events through HTTP (non-HTTPS)",
@@ -321,6 +349,8 @@ export const generateV3TestCases = ({
       },
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#17",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-17-attempt-action-events-through-http-non-https",
       condition: (response) => {
         return !response.data;
       },
@@ -335,6 +365,8 @@ export const generateV3TestCases = ({
       testKey: "TESTCASE#18",
       requestData: "grant_type=client_credentials",
       mandatoryVersion: ["V3.0"],
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-18-openid-connect-based-authentication-flow",
     },
     {
       name: "Test Case 19: OpenId connect-based authentication flow with incorrect credentials",
@@ -345,6 +377,8 @@ export const generateV3TestCases = ({
       testKey: "TESTCASE#19",
       requestData: "grant_type=client_credentials",
       mandatoryVersion: ["V3.0"],
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-19-openid-connect-based-authentication-flow-with-incorrect-credentials",
     },
     {
       name: `Test Case 20: V3 Filtering Functionality: Get Filtered List of Footprints by "productId" parameter`,
@@ -360,6 +394,8 @@ export const generateV3TestCases = ({
       conditionErrorMessage: `One or more footprints do not match the condition: 'productIds contains ${filterParams.productId}'`,
       testKey: "TESTCASE#20",
       mandatoryVersion: ["V3.0"],
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-20-v3-filtering-functionality-get-filtered-list-of-footprints-by-productid-parameter",
     },
     {
       name: `Test Case 21: V3 Filtering Functionality: Get Filtered List of Footprints by "companyId" parameter`,
@@ -375,6 +411,8 @@ export const generateV3TestCases = ({
       conditionErrorMessage: `One or more footprints do not match the condition: 'companyIds contains ${filterParams.companyId}'`,
       testKey: "TESTCASE#21",
       mandatoryVersion: ["V3.0"],
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-21-v3-filtering-functionality-get-filtered-list-of-footprints-by-companyid-parameter",
     },
     {
       name: `Test Case 22: V3 Filtering Functionality: Get Filtered List of Footprints by "geography" parameter`,
@@ -391,6 +429,8 @@ export const generateV3TestCases = ({
       conditionErrorMessage: `One or more footprints do not match the condition: 'pcf.geographyCountry = ${filterParams.geography}'`,
       testKey: "TESTCASE#22",
       mandatoryVersion: ["V3.0"],
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-22-v3-filtering-functionality-get-filtered-list-of-footprints-by-geography-parameter",
     },
     {
       name: `Test Case 23: V3 Filtering Functionality: Get Filtered List of Footprints by "classification" parameter`,
@@ -406,6 +446,8 @@ export const generateV3TestCases = ({
       conditionErrorMessage: `One or more footprints do not match the condition: 'productClassifications contains ${filterParams.classification}'`,
       testKey: "TESTCASE#23",
       mandatoryVersion: ["V3.0"],
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-23-v3-filtering-functionality-get-filtered-list-of-footprints-by-classification-parameter",
     },
     {
       name: `Test Case 24: V3 Filtering Functionality: Get Filtered List of Footprints by "validOn" parameter`,
@@ -428,6 +470,8 @@ export const generateV3TestCases = ({
       conditionErrorMessage: `One or more footprints do not match the condition: 'validityPeriodStart <= ${filterParams.validOn} <= validityPeriodEnd'`,
       testKey: "TESTCASE#24",
       mandatoryVersion: ["V3.0"],
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-24-v3-filtering-functionality-get-filtered-list-of-footprints-by-validon-parameter",
     },
     {
       name: `Test Case 25: V3 Filtering Functionality: Get Filtered List of Footprints by "validAfter" parameter`,
@@ -445,6 +489,8 @@ export const generateV3TestCases = ({
       conditionErrorMessage: `One or more footprints do not match the condition: 'validityPeriodStart > ${filterParams.validAfter}'`,
       testKey: "TESTCASE#25",
       mandatoryVersion: ["V3.0"],
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-25-v3-filtering-functionality-get-filtered-list-of-footprints-by-validafter-parameter",
     },
     {
       name: `Test Case 26: V3 Filtering Functionality: Get Filtered List of Footprints by "validBefore" parameter`,
@@ -462,6 +508,8 @@ export const generateV3TestCases = ({
       conditionErrorMessage: `One or more footprints do not match the condition: 'validityPeriodEnd < ${filterParams.validBefore}'`,
       testKey: "TESTCASE#26",
       mandatoryVersion: ["V3.0"],
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-26-v3-filtering-functionality-get-filtered-list-of-footprints-by-validbefore-parameter",
     },
     {
       name: `Test Case 27: V3 Filtering Functionality: Get Filtered List of Footprints by "status" parameter`,
@@ -478,6 +526,8 @@ export const generateV3TestCases = ({
       conditionErrorMessage: `One or more footprints do not match the condition: 'status = ${filterParams.status}'`,
       testKey: "TESTCASE#27",
       mandatoryVersion: ["V3.0"],
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-27-v3-filtering-functionality-get-filtered-list-of-footprints-by-status-parameter",
     },
     {
       name: `Test Case 28: V3 Filtering Functionality: Get Filtered List of Footprints by both "status" and "productId" parameters`,
@@ -495,6 +545,8 @@ export const generateV3TestCases = ({
       conditionErrorMessage: `One or more footprints do not match the condition: 'status = ${filterParams.status} AND productIds contains ${filterParams.productId}'`,
       testKey: "TESTCASE#28",
       mandatoryVersion: ["V3.0"],
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-28-v3-filtering-functionality-get-filtered-list-of-footprints-by-both-status-and-productid-parameters",
     },
   ];
 };

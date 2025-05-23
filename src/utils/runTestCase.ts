@@ -53,6 +53,7 @@ export const runTestCase = async (
       mandatory: isMandatoryVersion(testCase, version),
       testKey: testCase.testKey,
       curlRequest: "N/A - Missing URL",
+      documentationUrl: testCase.documentationUrl,
     };
   }
 
@@ -102,6 +103,7 @@ export const runTestCase = async (
         mandatory: isMandatoryVersion(testCase, version),
         testKey: testCase.testKey,
         curlRequest: curlCmd,
+        documentationUrl: testCase.documentationUrl,
       };
     }
 
@@ -132,6 +134,7 @@ export const runTestCase = async (
           mandatory: isMandatoryVersion(testCase, version),
           testKey: testCase.testKey,
           curlRequest: curlCmd,
+          documentationUrl: testCase.documentationUrl,
         };
       }
     }
@@ -154,6 +157,7 @@ export const runTestCase = async (
           mandatory: isMandatoryVersion(testCase, version),
           testKey: testCase.testKey,
           curlRequest: curlCmd,
+          documentationUrl: testCase.documentationUrl,
         };
       }
     }
@@ -165,6 +169,7 @@ export const runTestCase = async (
       mandatory: isMandatoryVersion(testCase, version),
       testKey: testCase.testKey,
       curlRequest: curlCmd,
+      documentationUrl: testCase.documentationUrl,
     };
   } catch (error: any) {
     return {
@@ -175,6 +180,7 @@ export const runTestCase = async (
       mandatory: isMandatoryVersion(testCase, version),
       testKey: testCase.testKey,
       curlRequest: curlCmd,
+      documentationUrl: testCase.documentationUrl,
     };
   }
 };

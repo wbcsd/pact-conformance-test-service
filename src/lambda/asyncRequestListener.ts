@@ -15,7 +15,7 @@ addFormats(ajv);
 betterErrors(ajv);
 
 const TEST_CASE_13_NAME = "Test Case 13: Respond to Asynchronous PCF Request";
-const TEST_CASE_33_NAME = "Test Case 14: Handle Rejected PCF Request";
+const TEST_CASE_14_NAME = "Test Case 14: Handle Rejected PCF Request";
 
 const MANDATORY_VERSIONS = ["V2.2", "V2.3", "V3.0"];
 
@@ -70,6 +70,9 @@ export const handler = async (
             success: true,
             mandatory: isMandatory,
             testKey: "TESTCASE#13",
+            documentationUrl: testData.version.startsWith("V2")
+              ? "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-13-respond-to-pcf-request-fulfilled-event"
+              : "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-13-respond-to-pcf-request-fulfilled-event",
           };
         } else {
           testResult = {
@@ -81,6 +84,9 @@ export const handler = async (
             errorMessage: `Event validation failed: ${JSON.stringify(
               validateEvent.errors
             )}`,
+            documentationUrl: testData.version.startsWith("V2")
+              ? "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-13-respond-to-pcf-request-fulfilled-event"
+              : "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-13-respond-to-pcf-request-fulfilled-event",
           };
         }
 
@@ -120,21 +126,27 @@ export const handler = async (
           body.data.error.message
         ) {
           testResult = {
-            name: TEST_CASE_33_NAME,
+            name: TEST_CASE_14_NAME,
             status: "SUCCESS",
             success: true,
             mandatory: isMandatory,
-            testKey: "TESTCASE#33",
+            testKey: "TESTCASE#14",
+            documentationUrl: testData.version.startsWith("V2")
+              ? "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-14-respond-to-pcf-request-rejected-event"
+              : "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-14-respond-to-pcf-request-rejected-event",
           };
         } else {
           testResult = {
-            name: TEST_CASE_33_NAME,
+            name: TEST_CASE_14_NAME,
             status: "FAILURE",
             success: false,
             mandatory: isMandatory,
             testKey: "TESTCASE#14",
             errorMessage:
               "Rejected event must contain an error object with a code and message",
+            documentationUrl: testData.version.startsWith("V2")
+              ? "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-14-respond-to-pcf-request-rejected-event"
+              : "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v3-test-cases-expected-results.md#test-case-14-respond-to-pcf-request-rejected-event",
           };
         }
 

@@ -63,6 +63,8 @@ export const generateV2TestCases = ({
       headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
       mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
       testKey: "TESTCASE#1",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-1-obtain-auth-token-with-valid-credentials",
     },
     {
       name: "Test Case 2: Obtain auth token with invalid credentials",
@@ -73,6 +75,8 @@ export const generateV2TestCases = ({
       headers: getIncorrectAuthHeaders(baseUrl),
       mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
       testKey: "TESTCASE#2",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-2-obtain-auth-token-with-invalid-credentials",
     },
     {
       name: "Test Case 3: Get PCF using GetFootprint",
@@ -86,6 +90,8 @@ export const generateV2TestCases = ({
       conditionErrorMessage: `Returned footprint does not match the requested footprint with id ${footprints.data[0].id}`,
       mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
       testKey: "TESTCASE#3",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-3-get-pcf-using-getfootprint",
     },
     {
       name: "Test Case 4: Get all PCFs using ListFootprints",
@@ -99,6 +105,8 @@ export const generateV2TestCases = ({
       conditionErrorMessage: "Number of footprints does not match",
       mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
       testKey: "TESTCASE#4",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-4-get-all-pcfs-using-listfootprints",
     },
     {
       name: "Test Case 5: Pagination link implementation of Action ListFootprints",
@@ -108,6 +116,8 @@ export const generateV2TestCases = ({
       schema: simpleResponseSchema,
       mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
       testKey: "TESTCASE#5",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-5-pagination-link-implementation-of-action-listfootprints",
     },
     {
       name: "Test Case 6: Attempt ListFootPrints with Invalid Token",
@@ -123,6 +133,8 @@ export const generateV2TestCases = ({
       },
       mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
       testKey: "TESTCASE#6",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-6-attempt-listfootprints-with-invalid-token",
     },
     {
       name: "Test Case 7: Attempt GetFootprint with Invalid Token",
@@ -138,6 +150,8 @@ export const generateV2TestCases = ({
       },
       mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
       testKey: "TESTCASE#7",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-7-attempt-getfootprint-with-invalid-token",
     },
     {
       name: "Test Case 8: Attempt GetFootprint with Non-Existent PfId",
@@ -150,6 +164,8 @@ export const generateV2TestCases = ({
       conditionErrorMessage: `Expected error code NoSuchFootprint in response.`,
       mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
       testKey: "TESTCASE#8",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-8-attempt-getfootprint-with-non-existent-pfid",
     },
     {
       name: "Test Case 9: Attempt Authentication through HTTP (non-HTTPS)",
@@ -160,6 +176,8 @@ export const generateV2TestCases = ({
       headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
       mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
       testKey: "TESTCASE#9",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-9-attempt-authentication-through-http-non-https",
       requestData: "grant_type=client_credentials",
       condition: (response) => {
         return !response.data && !response.access_token;
@@ -173,6 +191,8 @@ export const generateV2TestCases = ({
       customUrl: `${baseUrl.replace("https", "http")}/2/footprints`,
       mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
       testKey: "TESTCASE#10",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-10-attempt-listfootprints-through-http-non-https",
       condition: (response) => {
         return !response.data;
       },
@@ -186,6 +206,8 @@ export const generateV2TestCases = ({
       }`,
       mandatoryVersion: ["V2.0", "V2.1", "V2.2", "V2.3"],
       testKey: "TESTCASE#11",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-11-attempt-getfootprint-through-http-non-https",
       condition: (response) => {
         return !response.data;
       },
@@ -214,6 +236,8 @@ export const generateV2TestCases = ({
       },
       mandatoryVersion: ["V2.2", "V2.3"],
       testKey: "TESTCASE#12",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-12-receive-asynchronous-pcf-request",
     },
     // Test Case 13 is about receiving the PCF data from the webhook endpoint as a data recipient, this request will be triggered by the previous test.
     // It will be tested in the listener lambda
@@ -237,6 +261,8 @@ export const generateV2TestCases = ({
       },
       mandatoryVersion: ["V2.2", "V2.3"],
       testKey: "TESTCASE#15",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-15-receive-notification-of-pcf-update-published-event",
     },
     {
       name: "Test Case 16: Attempt Action Events with Invalid Token",
@@ -262,6 +288,8 @@ export const generateV2TestCases = ({
       },
       mandatoryVersion: ["V2.2", "V2.3"],
       testKey: "TESTCASE#16",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-16-attempt-action-events-with-invalid-token",
     },
     {
       name: "Test Case 17: Attempt Action Events through HTTP (non-HTTPS)",
@@ -285,6 +313,8 @@ export const generateV2TestCases = ({
       },
       mandatoryVersion: ["V2.2", "V2.3"],
       testKey: "TESTCASE#17",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-17-attempt-action-events-through-http-non-https",
       condition: (response) => {
         return !response.data;
       },
@@ -298,6 +328,8 @@ export const generateV2TestCases = ({
       headers: getCorrectAuthHeaders(baseUrl, clientId, clientSecret),
       testKey: "TESTCASE#18",
       requestData: "grant_type=client_credentials",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-18-openid-connect-based-authentication-flow",
     },
     {
       name: "Test Case 19: OpenId connect-based authentication flow with incorrect credentials",
@@ -307,6 +339,8 @@ export const generateV2TestCases = ({
       headers: getIncorrectAuthHeaders(baseUrl),
       testKey: "TESTCASE#19",
       requestData: "grant_type=client_credentials",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-19-openid-connect-based-authentication-flow-with-incorrect-credentials",
     },
     {
       name: "Test Case 20: Get Filtered List of Footprints",
@@ -324,6 +358,8 @@ export const generateV2TestCases = ({
       },
       conditionErrorMessage: `One or more footprints do not match the condition: 'created date >= ${footprints.data[0].created}'`,
       testKey: "TESTCASE#20",
+      documentationUrl:
+        "https://github.com/wbcsd/pact-conformance-service/blob/main/docs/v2-test-cases-expected-results.md#test-case-20-get-filtered-list-of-footprints",
     },
   ];
 };
