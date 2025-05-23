@@ -43,7 +43,7 @@ jobs:
         working-directory: infra
         run: terraform init -backend-config=backend-dev.hcl
 
-      - name: Terraform Apply (dev)
+      - name: Terraform Plan (dev)
         working-directory: infra
         run: terraform plan -var-file=dev.tfvars
 

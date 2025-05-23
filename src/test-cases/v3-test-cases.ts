@@ -11,6 +11,50 @@ import {
 } from "../utils/authUtils";
 import { v3_0_ResponseSchema } from "../schemas/v3_0_schema";
 
+interface Footprint {
+  id: string;
+  productIds: string[];
+  companyIds: string[];
+  pcf: {
+    geographyCountry: string;
+  };
+  productClassifications: string[];
+  validityPeriodStart: string;
+  validityPeriodEnd: string;
+  status: string;
+}
+
+interface FootprintsData {
+  data: Footprint[];
+}
+
+const getFilterParameters = (footprints: FootprintsData) => {
+  if (!footprints.data?.[0]) {
+    throw new Error(
+      "Invalid footprints data: Missing required data structure. Please check the API response."
+    );
+  }
+
+  const firstFootprint = footprints.data[0];
+
+  // TODO validate required params are present
+
+  return {
+    productId: firstFootprint.productIds[0],
+    productIds: firstFootprint.productIds,
+    companyId: firstFootprint.companyIds[0],
+    geography: firstFootprint.pcf.geographyCountry || "",
+    classification: firstFootprint.productClassifications
+      ? firstFootprint.productClassifications[0]
+      : "",
+    validOn: firstFootprint.validityPeriodStart,
+    validAfter: getDateOneDayBefore(firstFootprint.validityPeriodStart),
+    validBefore: getDateOneDayAfter(firstFootprint.validityPeriodEnd),
+    status: firstFootprint.status,
+    id: firstFootprint.id,
+  };
+};
+
 export const generateV3TestCases = ({
   testRunId,
   footprints,
@@ -34,7 +78,6 @@ export const generateV3TestCases = ({
   version: ApiVersion;
   webhookUrl: string;
 }): TestCase[] => {
-  // Get the correct response schema based on the version
   const responseSchema = (() => {
     switch (version) {
       case "V3.0":
@@ -44,7 +87,7 @@ export const generateV3TestCases = ({
     }
   })();
 
-  // TODO: validate properties needed in the footprints for the test cases, especially filters
+  const filterParams = getFilterParameters(footprints);
 
   return [
     {
@@ -70,13 +113,13 @@ export const generateV3TestCases = ({
     {
       name: "Test Case 3: Get PCF using GetFootprint",
       method: "GET",
-      endpoint: `/3/footprints/${footprints.data[0].id}`,
+      endpoint: `/3/footprints/${filterParams.id}`,
       expectedStatusCodes: [200],
       schema: simpleSingleFootprintResponseSchema,
       condition: ({ data }) => {
-        return data.id === footprints.data[0].id;
+        return data.id === filterParams.id;
       },
-      conditionErrorMessage: `Returned footprint does not match the requested footprint with id ${footprints.data[0].id}`,
+      conditionErrorMessage: `Returned footprint does not match the requested footprint with id ${filterParams.id}`,
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#3",
     },
@@ -120,7 +163,7 @@ export const generateV3TestCases = ({
     {
       name: "Test Case 7: Attempt GetFootprint with Invalid Token",
       method: "GET",
-      endpoint: `/3/footprints/${footprints.data[0].id}`,
+      endpoint: `/3/footprints/${filterParams.id}`,
       expectedStatusCodes: [400],
       condition: ({ code }) => {
         return code === "BadRequest";
@@ -175,7 +218,7 @@ export const generateV3TestCases = ({
       name: "Test Case 11: Attempt GetFootprint through HTTP (non-HTTPS)",
       method: "GET",
       customUrl: `${baseUrl.replace("https", "http")}/3/footprints/${
-        footprints.data[0].id
+        filterParams.id
       }`,
       mandatoryVersion: ["V3.0"],
       testKey: "TESTCASE#11",
@@ -200,7 +243,7 @@ export const generateV3TestCases = ({
         type: "org.wbcsd.pact.ProductFootprint.RequestCreatedEvent.3",
         data: {
           pf: {
-            productIds: footprints.data[0].productIds,
+            productIds: filterParams.productIds,
           },
           comment: "Please send PCF data for this year.",
         },
@@ -306,71 +349,68 @@ export const generateV3TestCases = ({
     {
       name: `Test Case 20: V3 Filtering Functionality: Get Filtered List of Footprints by "productId" parameter`,
       method: "GET",
-      endpoint: `/3/footprints?$productId=${footprints.data[0].productIds[0]}`,
+      endpoint: `/3/footprints?$productId=${filterParams.productId}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
         return data.every((footprint: { productIds: string[] }) =>
-          footprint.productIds.includes(footprints.data[0].productIds[0])
+          footprint.productIds.includes(filterParams.productId)
         );
       },
-      conditionErrorMessage: `One or more footprints do not match the condition: 'productIds contains ${footprints.data[0].productIds.toString()}'`,
+      conditionErrorMessage: `One or more footprints do not match the condition: 'productIds contains ${filterParams.productId}'`,
       testKey: "TESTCASE#20",
       mandatoryVersion: ["V3.0"],
     },
     {
       name: `Test Case 21: V3 Filtering Functionality: Get Filtered List of Footprints by "companyId" parameter`,
       method: "GET",
-      endpoint: `/3/footprints?$companyId=${footprints.data[0].companyIds[0]}`,
+      endpoint: `/3/footprints?$companyId=${filterParams.companyId}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
         return data.every((footprint: { companyIds: string[] }) =>
-          footprint.companyIds.includes(footprints.data[0].companyIds[0])
+          footprint.companyIds.includes(filterParams.companyId)
         );
       },
-      conditionErrorMessage: `One or more footprints do not match the condition: 'companyIds contains ${footprints.data[0].companyIds[0]}'`,
+      conditionErrorMessage: `One or more footprints do not match the condition: 'companyIds contains ${filterParams.companyId}'`,
       testKey: "TESTCASE#21",
       mandatoryVersion: ["V3.0"],
     },
     {
       name: `Test Case 22: V3 Filtering Functionality: Get Filtered List of Footprints by "geography" parameter`,
       method: "GET",
-      endpoint: `/3/footprints?$geography=${footprints.data[0].pcf.geographyCountry}`,
+      endpoint: `/3/footprints?$geography=${filterParams.geography}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
         return data.every(
           (footprint: { pcf: { geographyCountry: string } }) =>
-            footprint.pcf.geographyCountry ===
-            footprints.data[0].pcf.geographyCountry
+            footprint.pcf.geographyCountry === filterParams.geography
         );
       },
-      conditionErrorMessage: `One or more footprints do not match the condition: 'pcf.geographyCountry = ${footprints.data[0].pcf.geographyCountry}'`,
+      conditionErrorMessage: `One or more footprints do not match the condition: 'pcf.geographyCountry = ${filterParams.geography}'`,
       testKey: "TESTCASE#22",
       mandatoryVersion: ["V3.0"],
     },
     {
       name: `Test Case 23: V3 Filtering Functionality: Get Filtered List of Footprints by "classification" parameter`,
       method: "GET",
-      endpoint: `/3/footprints?$classification=${footprints.data[0].productClassifications[0]}`,
+      endpoint: `/3/footprints?$classification=${filterParams.classification}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
         return data.every((footprint: { productClassifications: string[] }) =>
-          footprint.productClassifications.includes(
-            footprints.data[0].productClassifications[0]
-          )
+          footprint.productClassifications.includes(filterParams.classification)
         );
       },
-      conditionErrorMessage: `One or more footprints do not match the condition: 'productClassifications contains ${footprints.data[0].productClassifications[0]}'`,
+      conditionErrorMessage: `One or more footprints do not match the condition: 'productClassifications contains ${filterParams.classification}'`,
       testKey: "TESTCASE#23",
       mandatoryVersion: ["V3.0"],
     },
     {
       name: `Test Case 24: V3 Filtering Functionality: Get Filtered List of Footprints by "validOn" parameter`,
       method: "GET",
-      endpoint: `/3/footprints?$validOn=${footprints.data[0].validityPeriodStart}`,
+      endpoint: `/3/footprints?$validOn=${filterParams.validOn}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
@@ -380,89 +420,79 @@ export const generateV3TestCases = ({
             validityPeriodEnd: string;
           }) =>
             new Date(footprint.validityPeriodStart) <=
-              new Date(footprints.data[0].validityPeriodStart) &&
+              new Date(filterParams.validOn) &&
             new Date(footprint.validityPeriodEnd) >=
-              new Date(footprints.data[0].validityPeriodStart)
+              new Date(filterParams.validOn)
         );
       },
-      conditionErrorMessage: `One or more footprints do not match the condition: 'validityPeriodStart <= ${footprints.data[0].validityPeriodStart} <= validityPeriodEnd'`,
+      conditionErrorMessage: `One or more footprints do not match the condition: 'validityPeriodStart <= ${filterParams.validOn} <= validityPeriodEnd'`,
       testKey: "TESTCASE#24",
       mandatoryVersion: ["V3.0"],
     },
     {
       name: `Test Case 25: V3 Filtering Functionality: Get Filtered List of Footprints by "validAfter" parameter`,
       method: "GET",
-      endpoint: `/3/footprints?$validAfter=${getDateOneDayBefore(
-        footprints.data[0].validityPeriodStart
-      )}`,
+      endpoint: `/3/footprints?$validAfter=${filterParams.validAfter}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
         return data.every(
           (footprint: { validityPeriodStart: string }) =>
             new Date(footprint.validityPeriodStart) >
-            new Date(
-              getDateOneDayBefore(footprints.data[0].validityPeriodStart)
-            )
+            new Date(filterParams.validAfter)
         );
       },
-      conditionErrorMessage: `One or more footprints do not match the condition: 'validityPeriodStart > ${getDateOneDayBefore(
-        footprints.data[0].validityPeriodStart
-      )}'`,
+      conditionErrorMessage: `One or more footprints do not match the condition: 'validityPeriodStart > ${filterParams.validAfter}'`,
       testKey: "TESTCASE#25",
       mandatoryVersion: ["V3.0"],
     },
     {
       name: `Test Case 26: V3 Filtering Functionality: Get Filtered List of Footprints by "validBefore" parameter`,
       method: "GET",
-      endpoint: `/3/footprints?$validBefore=${getDateOneDayAfter(
-        footprints.data[0].validityPeriodEnd
-      )}`,
+      endpoint: `/3/footprints?$validBefore=${filterParams.validBefore}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
         return data.every(
           (footprint: { validityPeriodEnd: string }) =>
             new Date(footprint.validityPeriodEnd) <
-            new Date(getDateOneDayAfter(footprints.data[0].validityPeriodEnd))
+            new Date(filterParams.validBefore)
         );
       },
-      conditionErrorMessage: `One or more footprints do not match the condition: 'validityPeriodEnd < ${getDateOneDayAfter(
-        footprints.data[0].validityPeriodEnd
-      )}'`,
+      conditionErrorMessage: `One or more footprints do not match the condition: 'validityPeriodEnd < ${filterParams.validBefore}'`,
       testKey: "TESTCASE#26",
       mandatoryVersion: ["V3.0"],
     },
     {
       name: `Test Case 27: V3 Filtering Functionality: Get Filtered List of Footprints by "status" parameter`,
       method: "GET",
-      endpoint: `/3/footprints?$status=${footprints.data[0].status}`,
+      endpoint: `/3/footprints?$status=${filterParams.status}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
         return data.every(
           (footprint: { status: string }) =>
-            footprint.status === footprints.data[0].status
+            footprint.status === filterParams.status
         );
       },
-      conditionErrorMessage: `One or more footprints do not match the condition: 'status = ${footprints.data[0].status}'`,
+      conditionErrorMessage: `One or more footprints do not match the condition: 'status = ${filterParams.status}'`,
       testKey: "TESTCASE#27",
       mandatoryVersion: ["V3.0"],
     },
     {
       name: `Test Case 28: V3 Filtering Functionality: Get Filtered List of Footprints by both "status" and "productId" parameters`,
       method: "GET",
-      endpoint: `/3/footprints?$status=${footprints.data[0].status}&$productId=${footprints.data[0].productIds[0]}`,
+      endpoint: `/3/footprints?$status=${filterParams.status}&$productId=${filterParams.productId}`,
       expectedStatusCodes: [200],
       schema: simpleResponseSchema,
       condition: ({ data }) => {
         return data.every(
           (footprint: { status: string; productIds: string[] }) =>
-            footprint.status === footprints.data[0].status &&
-            footprint.productIds.includes(footprints.data[0].productIds[0])
+            footprint.status === filterParams.status &&
+            footprint.productIds.includes(filterParams.productId)
         );
       },
-      conditionErrorMessage: `One or more footprints do not match the condition: 'status = ${footprints.data[0].status} AND productIds contains ${footprints.data[0].productIds[0]}'`,
+      conditionErrorMessage: `One or more footprints do not match the condition: 'status = ${filterParams.status} AND productIds contains ${filterParams.productId}'`,
       testKey: "TESTCASE#28",
       mandatoryVersion: ["V3.0"],
     },
